@@ -12,6 +12,10 @@ import { createRoot } from "react-dom/client";
 import type * as THREE from "three";
 import "./styles.css";
 
+const controlLabelClass = "grid min-w-0 gap-1.5 text-xs font-semibold text-[#c9d8eb]";
+const rangeInputClass = "w-full accent-[#66ccff]";
+const colorInputClass = "h-8 w-full rounded-md border border-[#97bcff3d] bg-[#0d1420] p-0.5";
+
 const VECTOR_POINTS: Array<[number, number, number]> = [
   [-2.8, 0.2, 0],
   [-1.4, 1.1, -0.25],
@@ -63,7 +67,7 @@ function Scene(): React.JSX.Element {
   const [colorEnd, setColorEnd] = React.useState("#f8ff7a");
 
   return (
-    <div className="app-shell">
+    <div className="relative h-full w-full overflow-hidden">
       <Canvas camera={{ position: [0, 1.2, 6], fov: 48 }} dpr={[1, 2]}>
         <color attach="background" args={["#080b12"]} />
         <ambientLight intensity={0.5} />
@@ -119,10 +123,11 @@ function Scene(): React.JSX.Element {
         <gridHelper args={[8, 16, "#263346", "#151d2b"]} position={[0, -1.65, 0]} />
       </Canvas>
 
-      <section className="controls">
-        <label>
+      <section className="absolute right-4 bottom-4 grid w-[min(420px,calc(100%_-_32px))] grid-cols-2 gap-3 rounded-lg border border-[#97bcff38] bg-[#080d16c7] p-3.5 text-[#c9d8eb] shadow-[0_16px_50px_rgb(0_0_0_/_32%)] backdrop-blur-md max-[560px]:right-3 max-[560px]:bottom-3 max-[560px]:left-3 max-[560px]:w-auto max-[560px]:grid-cols-1">
+        <label className={controlLabelClass}>
           <span>Width</span>
           <input
+            className={rangeInputClass}
             type="range"
             min="0.03"
             max="0.35"
@@ -131,9 +136,10 @@ function Scene(): React.JSX.Element {
             onChange={(event) => setWidth(Number(event.target.value))}
           />
         </label>
-        <label>
+        <label className={controlLabelClass}>
           <span>Feather</span>
           <input
+            className={rangeInputClass}
             type="range"
             min="0"
             max="0.5"
@@ -142,9 +148,10 @@ function Scene(): React.JSX.Element {
             onChange={(event) => setFeather(Number(event.target.value))}
           />
         </label>
-        <label>
+        <label className={controlLabelClass}>
           <span>Glow</span>
           <input
+            className={rangeInputClass}
             type="range"
             min="0"
             max="2"
@@ -153,25 +160,28 @@ function Scene(): React.JSX.Element {
             onChange={(event) => setGlow(Number(event.target.value))}
           />
         </label>
-        <label className="inline-control">
+        <label className={`${controlLabelClass} grid-cols-[auto_1fr] items-center self-end`}>
           <input
+            className="h-4 w-4 accent-[#66ccff]"
             type="checkbox"
             checked={dashed}
             onChange={(event) => setDashed(event.target.checked)}
           />
           <span>Dashed</span>
         </label>
-        <label>
+        <label className={controlLabelClass}>
           <span>Start</span>
           <input
+            className={colorInputClass}
             type="color"
             value={colorStart}
             onChange={(event) => setColorStart(event.target.value)}
           />
         </label>
-        <label>
+        <label className={controlLabelClass}>
           <span>End</span>
           <input
+            className={colorInputClass}
             type="color"
             value={colorEnd}
             onChange={(event) => setColorEnd(event.target.value)}

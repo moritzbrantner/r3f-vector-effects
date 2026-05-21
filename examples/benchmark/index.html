@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>r3f-vector-effects benchmark</title>
+  </head>
+  <body>
+    <div id="app" class="relative h-full">
+      <div id="viewport" class="h-full w-full [&>canvas]:block [&>canvas]:h-full [&>canvas]:w-full"></div>
+      <aside
+        class="absolute top-4 right-4 grid max-h-[calc(100%_-_32px)] w-[min(380px,calc(100%_-_32px))] gap-4 overflow-auto rounded-lg border border-[#92aac642] bg-[#0b1016db] p-4 text-[#edf4ff] shadow-[0_20px_70px_rgb(0_0_0_/_36%)] backdrop-blur-md max-[680px]:top-auto max-[680px]:right-2.5 max-[680px]:bottom-2.5 max-[680px]:left-2.5 max-[680px]:max-h-[52%] max-[680px]:w-auto"
+        aria-label="Benchmark controls"
+      >
+        <header class="grid gap-1.5">
+          <h1 class="m-0 text-lg leading-tight font-semibold">Vector Effects Benchmark</h1>
+          <p id="status" class="m-0 text-xs leading-normal text-[#aebed1]">Starting benchmark...</p>
+        </header>
+
+        <form id="controls" class="grid grid-cols-2 gap-3">
+          <label class="grid min-w-0 gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <span>Renderer</span>
+            <select
+              class="min-h-8 w-full rounded-md border border-[#92aac647] bg-[#111923] px-2.5 text-[#edf4ff]"
+              name="renderer"
+            >
+              <option value="webgl">WebGL</option>
+              <option value="webgpu">WebGPU</option>
+            </select>
+          </label>
+
+          <label class="grid min-w-0 gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <span>Material</span>
+            <select
+              class="min-h-8 w-full rounded-md border border-[#92aac647] bg-[#111923] px-2.5 text-[#edf4ff]"
+              name="material"
+            >
+              <option value="glsl">GLSL WebGL</option>
+              <option value="tsl">TSL WebGPU</option>
+            </select>
+          </label>
+
+          <label class="col-span-full grid min-w-0 gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <span>Paths</span>
+            <input class="w-full accent-[#8ed5ff]" name="paths" type="range" min="25" max="1600" step="25" />
+            <output id="pathsValue" class="-mt-1 justify-self-end text-[11px] text-[#93a8bd]"></output>
+          </label>
+
+          <label class="col-span-full grid min-w-0 gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <span>Segments</span>
+            <input class="w-full accent-[#8ed5ff]" name="segments" type="range" min="8" max="160" step="8" />
+            <output id="segmentsValue" class="-mt-1 justify-self-end text-[11px] text-[#93a8bd]"></output>
+          </label>
+
+          <label class="col-span-full grid min-w-0 gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <span>DPR</span>
+            <input class="w-full accent-[#8ed5ff]" name="dpr" type="range" min="0.5" max="2" step="0.25" />
+            <output id="dprValue" class="-mt-1 justify-self-end text-[11px] text-[#93a8bd]"></output>
+          </label>
+
+          <label class="col-span-full grid grid-cols-[auto_1fr] items-center gap-1.5 text-xs font-[650] text-[#c9d7e7]">
+            <input class="h-4 w-4 accent-[#8ed5ff]" name="animate" type="checkbox" />
+            <span>Animate uniforms</span>
+          </label>
+
+          <button
+            class="col-span-full min-h-9 cursor-pointer rounded-md border-0 bg-[#8ed5ff] font-bold text-[#071017]"
+            type="submit"
+          >
+            Apply
+          </button>
+        </form>
+
+        <dl class="m-0 grid grid-cols-2 gap-2.5">
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">FPS</dt>
+            <dd id="fps" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">--</dd>
+          </div>
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">Frame</dt>
+            <dd id="frame" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">-- ms</dd>
+          </div>
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">P95</dt>
+            <dd id="p95" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">-- ms</dd>
+          </div>
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">Draw Calls</dt>
+            <dd id="calls" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">--</dd>
+          </div>
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">Triangles</dt>
+            <dd id="triangles" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">--</dd>
+          </div>
+          <div class="grid min-w-0 gap-1 rounded-md border border-[#92aac62e] bg-white/[0.04] p-2.5">
+            <dt class="text-[11px] font-bold text-[#95a9bd]">Build</dt>
+            <dd id="build" class="m-0 text-lg font-[760] [overflow-wrap:anywhere] tabular-nums">-- ms</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

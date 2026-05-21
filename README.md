@@ -19,7 +19,7 @@ dashes, glow-like alpha falloff, and soft edges.
 ## Installation
 
 ```bash
-pnpm add @moritzbrantner/r3f-vector-effects three react react-dom @react-three/fiber
+bun add @moritzbrantner/r3f-vector-effects three react react-dom @react-three/fiber
 ```
 
 Peer dependencies:
@@ -137,12 +137,31 @@ It handles short point arrays, duplicate points, closed paths, and very small se
 ## Demo
 
 ```bash
-pnpm install
-pnpm demo
+bun install
+bun run demo
 ```
 
 The demo lives in `examples/vite-r3f-demo` and includes controls for width, feather, glow, dashes,
 and start/end colors.
+
+## Benchmark
+
+```bash
+bun run benchmark
+```
+
+The benchmark lives in `examples/benchmark` and can switch between WebGL and WebGPU. It measures
+FPS, average frame time, p95 frame time, draw calls, triangle count, and scene build time across a
+configurable number of ribbon paths and segments.
+
+Two material paths are available:
+
+- `GLSL WebGL`: the package's current `ShaderMaterial` implementation for WebGL testing.
+- `TSL WebGPU`: a WebGPU-compatible node material that mirrors the feathered gradient ribbon effect
+  for WebGPU testing.
+
+WebGPU requires browser support and a secure context; `localhost` from the Vite dev server is fine.
+If WebGPU is selected in an unsupported browser, the benchmark reports that in the status panel.
 
 ## Limitations
 
