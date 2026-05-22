@@ -10,7 +10,7 @@ export function CalligraphyRibbon({
   color = "#ffffff",
   closed = false,
   segments = 96,
-  curveType = "catmullrom",
+  curveType = "catmull-rom",
   width = 0.18,
   pressureProfile = "middle-heavy",
   customPressure,

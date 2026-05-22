@@ -7,12 +7,13 @@ import type {
   RibbonStyle,
   WidthProfile,
 } from "../types";
-import { clamp, isFiniteNumber, safePositive } from "../utils/math";
+import { EPSILON, clamp, isFiniteNumber, safePositive } from "../utils/math";
 
 export interface NormalizedSamplingOptions {
   closed: boolean;
   segments: number;
   curveType: CurveType;
+  epsilon: number;
 }
 
 export interface NormalizedDashStyle {
@@ -54,7 +55,9 @@ export function normalizeSamplingOptions(
   return {
     closed: options.closed ?? false,
     segments: Math.max(1, Math.floor(safePositive(options.segments, 64))),
-    curveType: options.curveType ?? "catmullrom",
+    curveType:
+      options.curveType === "catmullrom" ? "catmull-rom" : (options.curveType ?? "catmull-rom"),
+    epsilon: safePositive(options.epsilon, EPSILON),
   };
 }
 
@@ -72,7 +75,7 @@ export function normalizeRibbonStyle(style: RibbonStyle = {}): NormalizedRibbonS
   return {
     width: safePositive(style.width, 0.1),
     widthProfile: style.widthProfile ?? "constant",
-    widthCallback: style.widthCallback,
+    widthCallback: style.customWidthProfile ?? style.widthCallback,
     feather: clampFinite(style.feather, 0.08, 0, 1),
     glow: Math.max(0, finiteOrFallback(style.glow, 0)),
     opacity: clampFinite(style.opacity, 1, 0, 1),

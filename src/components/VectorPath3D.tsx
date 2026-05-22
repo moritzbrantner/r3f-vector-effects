@@ -19,7 +19,7 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       points,
       closed = false,
       segments = 64,
-      curveType = "catmullrom",
+      curveType = "catmull-rom",
       width = 0.1,
       widthProfile = "constant",
       color = "#ffffff",

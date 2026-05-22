@@ -6,9 +6,19 @@ import { buildStableFrames } from "./frames";
 import { sampleCurve } from "./sampleCurve";
 
 export interface BuildRibbonGeometryOptions extends PathSamplingOptions {
+  /** Full ribbon width in local units before profile scaling. */
   width?: number;
+  /** Built-in width multiplier sampled from normalized path progress. */
   widthProfile?: WidthProfile;
+  /** Custom width multiplier. Prefer customWidthProfile for new code. */
   widthCallback?: (t: number) => number;
+  /** Custom width multiplier sampled from normalized path progress. */
+  customWidthProfile?: (t: number) => number;
+  /** Keep cross sections oriented near `up` instead of transporting frame twist. */
+  billboard?: boolean;
+  /** Preferred local normal used for frame initialization and billboard mode. */
+  up?: THREE.Vector3 | readonly [number, number, number];
+  /** Dash data is consumed by materials; geometry generation intentionally ignores it. */
   dash?: DashStyle;
 }
 
@@ -22,22 +32,23 @@ export function buildRibbonGeometry(
   const sampled = sampleCurve(points, sampling);
 
   if (sampled.points.length < 2) {
-    geometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
-    geometry.setAttribute("normal", new THREE.Float32BufferAttribute([], 3));
-    geometry.setAttribute("uv", new THREE.Float32BufferAttribute([], 2));
-    geometry.setAttribute("pathProgress", new THREE.Float32BufferAttribute([], 1));
-    geometry.setAttribute("side", new THREE.Float32BufferAttribute([], 1));
+    setEmptyRibbonAttributes(geometry);
     geometry.setIndex([]);
     return geometry;
   }
 
-  const frames = buildStableFrames(sampled.tangents);
+  const frames = buildStableFrames(sampled.tangents, {
+    billboard: options.billboard,
+    up: options.up,
+    epsilon: sampling.epsilon,
+  });
   const vertexCount = sampled.points.length * 2;
   const positions = new Float32Array(vertexCount * 3);
   const normals = new Float32Array(vertexCount * 3);
   const uvs = new Float32Array(vertexCount * 2);
   const pathProgress = new Float32Array(vertexCount);
   const sideAttribute = new Float32Array(vertexCount);
+  const widthAttribute = new Float32Array(vertexCount);
 
   for (let i = 0; i < sampled.points.length; i += 1) {
     const t = sampled.progress[i];
@@ -59,6 +70,7 @@ export function buildRibbonGeometry(
       uvs,
       pathProgress,
       sideAttribute,
+      widthAttribute,
     });
 
     writeVertex({
@@ -74,6 +86,7 @@ export function buildRibbonGeometry(
       uvs,
       pathProgress,
       sideAttribute,
+      widthAttribute,
     });
   }
 
@@ -93,11 +106,21 @@ export function buildRibbonGeometry(
   geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
   geometry.setAttribute("pathProgress", new THREE.BufferAttribute(pathProgress, 1));
   geometry.setAttribute("side", new THREE.BufferAttribute(sideAttribute, 1));
+  geometry.setAttribute("width", new THREE.BufferAttribute(widthAttribute, 1));
   geometry.setIndex(indices);
   geometry.computeBoundingSphere();
   geometry.computeBoundingBox();
 
   return geometry;
+}
+
+function setEmptyRibbonAttributes(geometry: THREE.BufferGeometry): void {
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
+  geometry.setAttribute("normal", new THREE.Float32BufferAttribute([], 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute([], 2));
+  geometry.setAttribute("pathProgress", new THREE.Float32BufferAttribute([], 1));
+  geometry.setAttribute("side", new THREE.Float32BufferAttribute([], 1));
+  geometry.setAttribute("width", new THREE.Float32BufferAttribute([], 1));
 }
 
 function widthMultiplier(
@@ -135,18 +158,17 @@ interface WriteVertexOptions {
   uvs: Float32Array;
   pathProgress: Float32Array;
   sideAttribute: Float32Array;
+  widthAttribute: Float32Array;
 }
 
 function writeVertex(options: WriteVertexOptions): void {
   const offset = options.index * 3;
   const uvOffset = options.index * 2;
-  const edge = options.point
-    .clone()
-    .add(options.side.clone().multiplyScalar(options.sideSign * options.halfWidth));
+  const widthOffset = options.sideSign * options.halfWidth;
 
-  options.positions[offset] = edge.x;
-  options.positions[offset + 1] = edge.y;
-  options.positions[offset + 2] = edge.z;
+  options.positions[offset] = options.point.x + options.side.x * widthOffset;
+  options.positions[offset + 1] = options.point.y + options.side.y * widthOffset;
+  options.positions[offset + 2] = options.point.z + options.side.z * widthOffset;
 
   options.normals[offset] = options.normal.x;
   options.normals[offset + 1] = options.normal.y;
@@ -157,4 +179,5 @@ function writeVertex(options: WriteVertexOptions): void {
 
   options.pathProgress[options.index] = options.progress;
   options.sideAttribute[options.index] = options.sideSign;
+  options.widthAttribute[options.index] = options.halfWidth * 2;
 }

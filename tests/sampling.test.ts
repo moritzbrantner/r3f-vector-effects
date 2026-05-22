@@ -18,6 +18,20 @@ describe("sampleCurve", () => {
     expect(points).toHaveLength(2);
   });
 
+  it("uses epsilon when compacting nearly duplicate points", () => {
+    const points = compactPoints(
+      [
+        [0, 0, 0],
+        [0.001, 0, 0],
+        [1, 0, 0],
+      ],
+      false,
+      0.01,
+    );
+
+    expect(points).toHaveLength(2);
+  });
+
   it("filters non-finite points before sampling", () => {
     const sampled = sampleCurve(
       [
@@ -64,6 +78,26 @@ describe("sampleCurve", () => {
     expect(
       sampled.points[0].distanceToSquared(sampled.points[sampled.points.length - 1]),
     ).toBeGreaterThan(0);
+  });
+
+  it("samples catmull-rom curves with stable normalized progress", () => {
+    const sampled = sampleCurve(
+      [
+        [-1, 0, 0],
+        [0, 1, 0],
+        [1, 0, 0],
+      ],
+      { segments: 10, curveType: "catmull-rom" },
+    );
+
+    expect(sampled.points).toHaveLength(11);
+    expect(sampled.progress[0]).toBe(0);
+    expect(sampled.progress[sampled.progress.length - 1]).toBe(1);
+
+    for (const value of sampled.progress) {
+      expect(value).toBeGreaterThanOrEqual(0);
+      expect(value).toBeLessThanOrEqual(1);
+    }
   });
 
   it("normalizes very low and high segment counts", () => {

@@ -3,16 +3,21 @@ import type * as THREE from "three";
 
 export type VectorEffectPoint = readonly [number, number, number] | THREE.Vector3;
 
-export type CurveType = "catmullrom" | "polyline";
+export type CurveType = "catmull-rom" | "catmullrom" | "polyline";
 
 export type WidthProfile = "constant" | "taper" | "calligraphy" | "pulse";
 
 export type BillboardMode = "none" | "object";
 
 export interface PathSamplingOptions {
+  /** Close the path by connecting the final sampled point back to the first. */
   closed?: boolean;
+  /** Number of samples along the path. Open paths emit segments + 1 sample bands. */
   segments?: number;
+  /** Curve interpolation. "catmullrom" is kept as a backwards-compatible alias. */
   curveType?: CurveType;
+  /** Distance threshold used when removing duplicate or nearly duplicate points. */
+  epsilon?: number;
 }
 
 export interface DashStyle {
@@ -24,9 +29,14 @@ export interface DashStyle {
 }
 
 export interface RibbonStyle {
+  /** Full ribbon width in local units before profile scaling. */
   width?: number;
+  /** Built-in width multiplier sampled from path progress. */
   widthProfile?: WidthProfile;
+  /** Custom width multiplier. Prefer customWidthProfile for new code. */
   widthCallback?: (t: number) => number;
+  /** Custom width multiplier sampled from normalized path progress. */
+  customWidthProfile?: (t: number) => number;
   feather?: number;
   glow?: number;
   opacity?: number;

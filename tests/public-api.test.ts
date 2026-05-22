@@ -3,6 +3,7 @@ import * as geometryApi from "../src/geometry";
 import * as publicApi from "../src/index";
 import type {
   BuildRibbonGeometryOptions,
+  BuildStableFramesOptions,
   BuildTubePathGeometryOptions,
   CalligraphyRibbonProps,
   DashStyle,
@@ -38,7 +39,7 @@ describe("public API", () => {
 
   it("keeps public prop and option types importable from the root", () => {
     const dash: DashStyle = { enabled: true, size: 0.2, gap: 0.1 };
-    const sampling: PathSamplingOptions = { segments: 8, curveType: "polyline" };
+    const sampling: PathSamplingOptions = { segments: 8, curveType: "catmull-rom", epsilon: 1e-5 };
     const vectorPathProps: VectorPath3DProps = {
       points: [
         [0, 0, 0],
@@ -51,7 +52,14 @@ describe("public API", () => {
     const calligraphyProps: CalligraphyRibbonProps = { points: vectorPathProps.points };
     const motionTrailProps: MotionTrailProps = { points: vectorPathProps.points };
     const featheredPlaneProps: FeatheredPlaneProps = { width: 1, height: 1 };
-    const ribbonOptions: BuildRibbonGeometryOptions = { width: 0.1, dash };
+    const ribbonOptions: BuildRibbonGeometryOptions = {
+      width: 0.1,
+      customWidthProfile: (t) => t,
+      billboard: true,
+      up: [0, 0, 1],
+      dash,
+    };
+    const frameOptions: BuildStableFramesOptions = { up: [0, 1, 0], billboard: false };
     const tubeOptions: BuildTubePathGeometryOptions = { radius: 0.05 };
     const materialOptions: RibbonMaterialOptions = { color: "white", dash };
 
@@ -63,6 +71,7 @@ describe("public API", () => {
       motionTrailProps,
       featheredPlaneProps,
       ribbonOptions,
+      frameOptions,
       tubeOptions,
       materialOptions,
     }).toBeDefined();

@@ -30,5 +30,10 @@ export type {
   VectorPath3DProps,
   WidthProfile,
 } from "./types";
-export type { BuildRibbonGeometryOptions, BuildTubePathGeometryOptions } from "./geometry";
+export type {
+  BuildRibbonGeometryOptions,
+  BuildStableFramesOptions,
+  BuildTubePathGeometryOptions,
+  RibbonFrame,
+} from "./geometry";
 export type { FeatheredRibbonMaterialOptions, RibbonMaterialOptions } from "./materials";

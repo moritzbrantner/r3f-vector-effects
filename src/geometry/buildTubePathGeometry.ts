@@ -14,7 +14,7 @@ export function buildTubePathGeometry(
   options: BuildTubePathGeometryOptions = {},
 ): THREE.BufferGeometry {
   const sampling = normalizeSamplingOptions(options);
-  const clean = compactPoints(points, sampling.closed);
+  const clean = compactPoints(points, sampling.closed, sampling.epsilon);
 
   if (clean.length < 2) {
     return new THREE.BufferGeometry();

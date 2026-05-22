@@ -8,7 +8,7 @@ export function NeonCurve({
   color = "#66ccff",
   closed = false,
   segments = 64,
-  curveType = "catmullrom",
+  curveType = "catmull-rom",
   coreWidth = 0.04,
   glowWidth = 0.3,
   intensity = 1.6,

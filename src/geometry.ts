@@ -5,6 +5,7 @@ export { sampleCurve, compactPoints, toVector3Array } from "./geometry/sampleCur
 
 export type { BuildRibbonGeometryOptions } from "./geometry/buildRibbonGeometry";
 export type { BuildTubePathGeometryOptions } from "./geometry/buildTubePathGeometry";
+export type { BuildStableFramesOptions, RibbonFrame } from "./geometry/frames";
 export type {
   CurveType,
   PathSamplingOptions,

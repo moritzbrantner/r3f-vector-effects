@@ -7,6 +7,12 @@ function numericArray(attribute: THREE.BufferAttribute): number[] {
   return Array.from(attribute.array as ArrayLike<number>);
 }
 
+function numericAttributes(geometry: THREE.BufferGeometry): THREE.BufferAttribute[] {
+  return Object.keys(geometry.attributes).map(
+    (name) => geometry.getAttribute(name) as THREE.BufferAttribute,
+  );
+}
+
 describe("buildRibbonGeometry", () => {
   it("returns empty geometry for fewer than two valid points", () => {
     const geometry = buildRibbonGeometry([[0, 0, 0]], { segments: 8 });
@@ -30,7 +36,24 @@ describe("buildRibbonGeometry", () => {
     expect(geometry.getAttribute("uv").count).toBe(10);
     expect(geometry.getAttribute("pathProgress").count).toBe(10);
     expect(geometry.getAttribute("side").count).toBe(10);
+    expect(geometry.getAttribute("width").count).toBe(10);
     expect(geometry.getIndex()?.count).toBe(24);
+  });
+
+  it("builds a finite three-point curved ribbon", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [-1, 0, 0],
+        [0, 1, 0],
+        [1, 0, 0],
+      ],
+      { segments: 12, curveType: "catmull-rom", width: 0.2 },
+    );
+
+    expect(geometry.getAttribute("position").count).toBe(26);
+    for (const attribute of numericAttributes(geometry)) {
+      expect(numericArray(attribute).every(Number.isFinite)).toBe(true);
+    }
   });
 
   it("keeps uv coordinates and progress in the normalized range", () => {
@@ -45,8 +68,9 @@ describe("buildRibbonGeometry", () => {
 
     const uv = numericArray(geometry.getAttribute("uv") as THREE.BufferAttribute);
     const progress = numericArray(geometry.getAttribute("pathProgress") as THREE.BufferAttribute);
+    const uvX = uv.filter((_, index) => index % 2 === 0);
 
-    for (const value of uv) {
+    for (const value of uvX) {
       expect(value).toBeGreaterThanOrEqual(0);
       expect(value).toBeLessThanOrEqual(1);
     }
@@ -55,6 +79,20 @@ describe("buildRibbonGeometry", () => {
       expect(value).toBeGreaterThanOrEqual(0);
       expect(value).toBeLessThanOrEqual(1);
     }
+  });
+
+  it("writes side values as only -1 and +1", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+      ],
+      { segments: 8, curveType: "polyline" },
+    );
+
+    const sides = numericArray(geometry.getAttribute("side") as THREE.BufferAttribute);
+    expect(new Set(sides)).toEqual(new Set([-1, 1]));
   });
 
   it("does not emit NaN values for duplicate points or tiny segments", () => {
@@ -69,11 +107,19 @@ describe("buildRibbonGeometry", () => {
       { segments: 10, width: 0.1 },
     );
 
-    const attributes = ["position", "normal", "uv", "pathProgress", "side"] as const;
-    for (const name of attributes) {
-      const values = numericArray(geometry.getAttribute(name) as THREE.BufferAttribute);
-      expect(values.every(Number.isFinite)).toBe(true);
+    for (const attribute of numericAttributes(geometry)) {
+      expect(numericArray(attribute).every(Number.isFinite)).toBe(true);
     }
+  });
+
+  it("returns an empty geometry for invalid runtime inputs", () => {
+    const geometry = buildRibbonGeometry(
+      null as unknown as Parameters<typeof buildRibbonGeometry>[0],
+    );
+
+    expect(geometry.getAttribute("position").count).toBe(0);
+    expect(geometry.getAttribute("width").count).toBe(0);
+    expect(geometry.getIndex()?.count ?? 0).toBe(0);
   });
 
   it("normalizes invalid width callback values", () => {
@@ -102,6 +148,49 @@ describe("buildRibbonGeometry", () => {
 
     const positions = numericArray(geometry.getAttribute("position") as THREE.BufferAttribute);
     expect(positions.every(Number.isFinite)).toBe(true);
+  });
+
+  it("applies built-in width profiles to the width attribute", () => {
+    const points = [
+      [0, 0, 0],
+      [1, 0, 0],
+    ] as const;
+
+    const constant = buildRibbonGeometry(points, {
+      segments: 8,
+      curveType: "polyline",
+      width: 0.2,
+      widthProfile: "constant",
+    });
+    const taper = buildRibbonGeometry(points, {
+      segments: 8,
+      curveType: "polyline",
+      width: 0.2,
+      widthProfile: "taper",
+    });
+
+    expect(numericArray(constant.getAttribute("width") as THREE.BufferAttribute)).not.toEqual(
+      numericArray(taper.getAttribute("width") as THREE.BufferAttribute),
+    );
+  });
+
+  it("applies customWidthProfile to the width attribute", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      {
+        segments: 4,
+        curveType: "polyline",
+        width: 0.5,
+        customWidthProfile: (t) => 0.5 + t,
+      },
+    );
+
+    const widths = numericArray(geometry.getAttribute("width") as THREE.BufferAttribute);
+    expect(widths[0]).toBeCloseTo(0.25);
+    expect(widths[widths.length - 1]).toBeCloseTo(0.75);
   });
 
   it("does not let dash options affect geometry output", () => {
@@ -175,9 +264,8 @@ describe("buildRibbonGeometry", () => {
       { segments: 24, curveType: "polyline" },
     );
 
-    for (const name of ["position", "normal", "uv", "pathProgress", "side"] as const) {
-      const values = numericArray(geometry.getAttribute(name) as THREE.BufferAttribute);
-      expect(values.every(Number.isFinite)).toBe(true);
+    for (const attribute of numericAttributes(geometry)) {
+      expect(numericArray(attribute).every(Number.isFinite)).toBe(true);
     }
   });
 

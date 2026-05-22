@@ -15,17 +15,33 @@ export interface SampledPath {
 }
 
 export function toVector3Array(points: readonly VectorEffectPoint[]): THREE.Vector3[] {
-  return points.map((point) =>
-    point instanceof THREE.Vector3
-      ? point.clone()
-      : new THREE.Vector3(point[0], point[1], point[2]),
-  );
+  if (!Array.isArray(points)) {
+    return [];
+  }
+
+  const vectors: THREE.Vector3[] = [];
+
+  for (const point of points) {
+    if (point instanceof THREE.Vector3) {
+      vectors.push(point.clone());
+      continue;
+    }
+
+    if (Array.isArray(point) && point.length >= 3) {
+      vectors.push(new THREE.Vector3(point[0], point[1], point[2]));
+    }
+  }
+
+  return vectors;
 }
 
 export function compactPoints(
   points: readonly VectorEffectPoint[],
   closed = false,
+  epsilon = EPSILON,
 ): THREE.Vector3[] {
+  const threshold = Math.max(0, epsilon);
+  const thresholdSq = threshold * threshold;
   const vectors = toVector3Array(points).filter(
     (point) => Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z),
   );
@@ -33,7 +49,7 @@ export function compactPoints(
 
   for (const point of vectors) {
     const previous = compacted.length > 0 ? compacted[compacted.length - 1] : undefined;
-    if (!previous || previous.distanceToSquared(point) > EPSILON * EPSILON) {
+    if (!previous || previous.distanceToSquared(point) > thresholdSq) {
       compacted.push(point);
     }
   }
@@ -41,7 +57,7 @@ export function compactPoints(
   if (
     closed &&
     compacted.length > 1 &&
-    compacted[0].distanceToSquared(compacted[compacted.length - 1]) <= EPSILON * EPSILON
+    compacted[0].distanceToSquared(compacted[compacted.length - 1]) <= thresholdSq
   ) {
     compacted.pop();
   }
@@ -53,8 +69,8 @@ export function sampleCurve(
   points: readonly VectorEffectPoint[],
   options: SampleCurveOptions = {},
 ): SampledPath {
-  const { closed, curveType, segments } = normalizeSamplingOptions(options);
-  const clean = compactPoints(points, closed);
+  const { closed, curveType, segments, epsilon } = normalizeSamplingOptions(options);
+  const clean = compactPoints(points, closed, epsilon);
 
   if (clean.length < 2) {
     return emptySampledPath(closed);
@@ -80,7 +96,7 @@ function emptySampledPath(closed: boolean): SampledPath {
 
 function sampleCatmullRom(points: THREE.Vector3[], segments: number, closed: boolean): SampledPath {
   const curve = new THREE.CatmullRomCurve3(points, closed, "centripetal");
-  const count = closed ? segments : segments + 1;
+  const count = closed ? Math.max(3, segments) : segments + 1;
   const sampledPoints: THREE.Vector3[] = [];
   const tangents: THREE.Vector3[] = [];
 
@@ -110,7 +126,7 @@ function samplePolyline(points: THREE.Vector3[], segments: number, closed: boole
     return emptySampledPath(closed);
   }
 
-  const count = closed ? segments : segments + 1;
+  const count = closed ? Math.max(3, segments) : segments + 1;
   const sampledPoints: THREE.Vector3[] = [];
   const tangents: THREE.Vector3[] = [];
 
