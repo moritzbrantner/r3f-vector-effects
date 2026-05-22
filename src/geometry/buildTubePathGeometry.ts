@@ -1,35 +1,35 @@
 import * as THREE from "three";
-import type { CurveType, VectorEffectPoint } from "../types";
+import { normalizeSamplingOptions } from "../core/normalize";
+import type { PathSamplingOptions, VectorEffectPoint } from "../types";
+import { safePositive } from "../utils/math";
 import { compactPoints } from "./sampleCurve";
 
-export interface BuildTubePathGeometryOptions {
-  closed?: boolean;
-  segments?: number;
+export interface BuildTubePathGeometryOptions extends PathSamplingOptions {
   radius?: number;
   radialSegments?: number;
-  curveType?: CurveType;
 }
 
 export function buildTubePathGeometry(
-  points: VectorEffectPoint[],
+  points: readonly VectorEffectPoint[],
   options: BuildTubePathGeometryOptions = {},
 ): THREE.BufferGeometry {
-  const clean = compactPoints(points, options.closed ?? false);
+  const sampling = normalizeSamplingOptions(options);
+  const clean = compactPoints(points, sampling.closed);
 
   if (clean.length < 2) {
     return new THREE.BufferGeometry();
   }
 
   const curve =
-    (options.curveType ?? "catmullrom") === "polyline" || clean.length < 3
-      ? new THREE.CatmullRomCurve3(clean, options.closed ?? false, "chordal", 0)
-      : new THREE.CatmullRomCurve3(clean, options.closed ?? false, "centripetal");
+    sampling.curveType === "polyline" || clean.length < 3
+      ? new THREE.CatmullRomCurve3(clean, sampling.closed, "chordal", 0)
+      : new THREE.CatmullRomCurve3(clean, sampling.closed, "centripetal");
 
   return new THREE.TubeGeometry(
     curve,
-    Math.max(1, Math.floor(options.segments ?? 64)),
-    options.radius ?? 0.04,
+    sampling.segments,
+    safePositive(options.radius, 0.04),
     Math.max(3, Math.floor(options.radialSegments ?? 8)),
-    options.closed ?? false,
+    sampling.closed,
   );
 }

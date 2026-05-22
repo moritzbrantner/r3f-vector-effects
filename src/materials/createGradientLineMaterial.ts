@@ -1,11 +1,11 @@
 import type * as THREE from "three";
 import {
-  type FeatheredRibbonMaterialOptions,
+  type RibbonMaterialOptions,
   createFeatheredRibbonMaterial,
 } from "./createFeatheredRibbonMaterial";
 
 export function createGradientLineMaterial(
-  options: FeatheredRibbonMaterialOptions = {},
+  options: RibbonMaterialOptions = {},
 ): THREE.ShaderMaterial {
   return createFeatheredRibbonMaterial({
     feather: 0,

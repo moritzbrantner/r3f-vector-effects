@@ -1,24 +1,25 @@
 import * as THREE from "three";
-import type { CurveType, VectorEffectPoint, WidthProfile } from "../types";
-import { clamp, safePositive } from "../utils/math";
+import { normalizeRibbonStyle, normalizeSamplingOptions } from "../core/normalize";
+import type { DashStyle, PathSamplingOptions, VectorEffectPoint, WidthProfile } from "../types";
+import { clamp, isFiniteNumber } from "../utils/math";
 import { buildStableFrames } from "./frames";
 import { sampleCurve } from "./sampleCurve";
 
-export interface BuildRibbonGeometryOptions {
-  closed?: boolean;
-  segments?: number;
-  curveType?: CurveType;
+export interface BuildRibbonGeometryOptions extends PathSamplingOptions {
   width?: number;
   widthProfile?: WidthProfile;
   widthCallback?: (t: number) => number;
+  dash?: DashStyle;
 }
 
 export function buildRibbonGeometry(
-  points: VectorEffectPoint[],
+  points: readonly VectorEffectPoint[],
   options: BuildRibbonGeometryOptions = {},
 ): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
-  const sampled = sampleCurve(points, options);
+  const sampling = normalizeSamplingOptions(options);
+  const style = normalizeRibbonStyle(options);
+  const sampled = sampleCurve(points, sampling);
 
   if (sampled.points.length < 2) {
     geometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
@@ -30,7 +31,6 @@ export function buildRibbonGeometry(
     return geometry;
   }
 
-  const baseWidth = safePositive(options.width, 0.1);
   const frames = buildStableFrames(sampled.tangents);
   const vertexCount = sampled.points.length * 2;
   const positions = new Float32Array(vertexCount * 3);
@@ -41,7 +41,7 @@ export function buildRibbonGeometry(
 
   for (let i = 0; i < sampled.points.length; i += 1) {
     const t = sampled.progress[i];
-    const width = baseWidth * widthMultiplier(t, options);
+    const width = style.width * widthMultiplier(t, style.widthProfile, style.widthCallback);
     const halfWidth = width / 2;
     const point = sampled.points[i];
     const frame = frames[i];
@@ -77,7 +77,7 @@ export function buildRibbonGeometry(
     });
   }
 
-  const segmentCount = options.closed ? sampled.points.length : sampled.points.length - 1;
+  const segmentCount = sampling.closed ? sampled.points.length : sampled.points.length - 1;
   const indices: number[] = [];
   for (let i = 0; i < segmentCount; i += 1) {
     const next = (i + 1) % sampled.points.length;
@@ -100,12 +100,17 @@ export function buildRibbonGeometry(
   return geometry;
 }
 
-function widthMultiplier(t: number, options: BuildRibbonGeometryOptions): number {
-  if (options.widthCallback) {
-    return clamp(options.widthCallback(t), 0, 10);
+function widthMultiplier(
+  t: number,
+  widthProfile: WidthProfile,
+  widthCallback?: (t: number) => number,
+): number {
+  if (widthCallback) {
+    const value = widthCallback(t);
+    return isFiniteNumber(value) ? clamp(value, 0, 10) : 1;
   }
 
-  switch (options.widthProfile ?? "constant") {
+  switch (widthProfile) {
     case "taper":
       return 0.15 + 0.85 * Math.sin(Math.PI * t);
     case "calligraphy":

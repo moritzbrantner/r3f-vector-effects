@@ -70,6 +70,23 @@ export function Scene() {
 }
 ```
 
+## Import Entrypoints
+
+The root entrypoint is a convenience surface for common React components and framework-independent
+helpers:
+
+```ts
+import { VectorPath3D, buildRibbonGeometry } from "@moritzbrantner/r3f-vector-effects";
+```
+
+Use subpath entrypoints when you want clearer bundle boundaries:
+
+```ts
+import { VectorPath3D } from "@moritzbrantner/r3f-vector-effects/react";
+import { buildRibbonGeometry, sampleCurve } from "@moritzbrantner/r3f-vector-effects/geometry";
+import { createFeatheredRibbonMaterial } from "@moritzbrantner/r3f-vector-effects/materials";
+```
+
 ## Components
 
 ### VectorPath3D
@@ -87,8 +104,12 @@ Key props:
 - `widthProfile`: `"constant"`, `"taper"`, `"calligraphy"`, or `"pulse"`
 - `color`, `colorStart`, `colorEnd`
 - `opacity`, `feather`, `glow`
-- `dashed`, `dashSize`, `gapSize`
-- `billboard`, `depthTest`, `renderOrder`
+- `dash`: `{ enabled, size, gap, phase, units: "progress" }`
+- `billboardMode`: `"none"` or `"object"`
+- `depthTest`, `renderOrder`
+
+`dash` is progress-based. `size`, `gap`, and `phase` are normalized path progress units, not world
+units.
 
 ### NeonCurve
 
@@ -120,6 +141,7 @@ const geometry = buildRibbonGeometry(points, {
   width: 0.12,
   segments: 64,
   widthProfile: "taper",
+  dash: { enabled: true, size: 0.12, gap: 0.08 },
 });
 ```
 
@@ -133,6 +155,28 @@ const geometry = buildRibbonGeometry(points, {
 - indexed triangles between neighboring samples
 
 It handles short point arrays, duplicate points, closed paths, and very small segments.
+Invalid coordinates are filtered before sampling, numeric options are normalized, and non-empty
+geometries compute bounding boxes and bounding spheres.
+
+## Material API
+
+Material factories live under the root entrypoint and `./materials`:
+
+```ts
+import { createFeatheredRibbonMaterial } from "@moritzbrantner/r3f-vector-effects/materials";
+
+const material = createFeatheredRibbonMaterial({
+  colorStart: "#66ccff",
+  colorEnd: "#f8ff7a",
+  feather: 0.14,
+  glow: 0.5,
+  dash: { enabled: true, size: 0.1, gap: 0.05 },
+});
+```
+
+Defaults are normalized: opacity is clamped to `0..1`, feather is clamped to `0..1`, glow is
+non-negative, invalid dash values fall back to safe progress-based defaults, and depth testing is
+enabled unless explicitly disabled.
 
 ## Demo
 
@@ -157,16 +201,28 @@ configurable number of ribbon paths and segments.
 Two material paths are available:
 
 - `GLSL WebGL`: the package's current `ShaderMaterial` implementation for WebGL testing.
-- `TSL WebGPU`: a WebGPU-compatible node material that mirrors the feathered gradient ribbon effect
-  for WebGPU testing.
+- `TSL WebGPU`: an experimental WebGPU-compatible node material imported from
+  `@moritzbrantner/r3f-vector-effects/experimental/tsl`.
 
 WebGPU requires browser support and a secure context; `localhost` from the Vite dev server is fine.
 If WebGPU is selected in an unsupported browser, the benchmark reports that in the status panel.
 
+The `./experimental/tsl` entrypoint is unstable and excluded from SemVer guarantees until it is
+promoted to the stable material API.
+
+## Performance Notes
+
+- Pass stable `points` arrays when possible; React components rebuild geometry when the points array
+  identity changes.
+- Higher `segments` values increase CPU geometry build cost and vertex count.
+- Dashes are progress-based rather than world-unit spacing.
+- `billboardMode: "object"` rotates the whole mesh toward the camera; it is not per-segment
+  screen-space billboarding.
+
 ## Limitations
 
-- Billboard support rotates the whole mesh toward the camera. It is not per-segment screen-space
-  billboarding.
+- `billboardMode: "object"` rotates the whole mesh toward the camera. It is not per-segment
+  screen-space billboarding.
 - Dashes are progress-based, not exact world-unit dash lengths.
 - Glow is an additive alpha falloff, not a postprocessing bloom pass.
 - Ribbon frames are stable for common curves but are not a full production-grade parallel transport
@@ -179,4 +235,4 @@ If WebGPU is selected in an unsupported browser, the benchmark reports that in t
 - More robust frame transport for difficult closed 3D curves.
 - Tube and hybrid ribbon/tube components.
 - Instanced trail and particle-assisted glow variants.
-- Optional isolated TSL/WebGPU adapter once the WebGL MVP is stable.
+- Promote the experimental TSL/WebGPU adapter once the WebGL API is stable.

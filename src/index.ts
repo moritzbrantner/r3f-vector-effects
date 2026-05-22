@@ -1,29 +1,34 @@
-export { VectorPath3D } from "./components/VectorPath3D";
-export { NeonCurve } from "./components/NeonCurve";
-export { CalligraphyRibbon } from "./components/CalligraphyRibbon";
-export { MotionTrail } from "./components/MotionTrail";
-export { FeatheredPlane } from "./components/FeatheredPlane";
+export { CalligraphyRibbon, FeatheredPlane, MotionTrail, NeonCurve, VectorPath3D } from "./react";
 
-export { buildRibbonGeometry } from "./geometry/buildRibbonGeometry";
-export { buildTubePathGeometry } from "./geometry/buildTubePathGeometry";
-export { buildStableFrames } from "./geometry/frames";
-export { sampleCurve, compactPoints, toVector3Array } from "./geometry/sampleCurve";
+export {
+  buildRibbonGeometry,
+  buildStableFrames,
+  buildTubePathGeometry,
+  compactPoints,
+  sampleCurve,
+  toVector3Array,
+} from "./geometry";
 
-export { createGradientLineMaterial } from "./materials/createGradientLineMaterial";
-export { createFeatheredRibbonMaterial } from "./materials/createFeatheredRibbonMaterial";
-export { createNeonMaterial } from "./materials/createNeonMaterial";
+export {
+  createFeatheredRibbonMaterial,
+  createGradientLineMaterial,
+  createNeonMaterial,
+} from "./materials";
 
 export type {
+  BillboardMode,
   CalligraphyRibbonProps,
   CurveType,
+  DashStyle,
   FeatheredPlaneProps,
   MotionTrailProps,
   NeonCurveProps,
+  PathSamplingOptions,
   PressureProfile,
+  RibbonStyle,
   VectorEffectPoint,
   VectorPath3DProps,
   WidthProfile,
 } from "./types";
-export type { BuildRibbonGeometryOptions } from "./geometry/buildRibbonGeometry";
-export type { BuildTubePathGeometryOptions } from "./geometry/buildTubePathGeometry";
-export type { FeatheredRibbonMaterialOptions } from "./materials/createFeatheredRibbonMaterial";
+export type { BuildRibbonGeometryOptions, BuildTubePathGeometryOptions } from "./geometry";
+export type { FeatheredRibbonMaterialOptions, RibbonMaterialOptions } from "./materials";

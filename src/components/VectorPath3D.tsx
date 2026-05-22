@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import * as React from "react";
 import * as THREE from "three";
+import { normalizeRibbonStyle, normalizeSamplingOptions } from "../core/normalize";
 import { buildRibbonGeometry } from "../geometry/buildRibbonGeometry";
 import { createFeatheredRibbonMaterial } from "../materials/createFeatheredRibbonMaterial";
 import type { VectorPath3DProps } from "../types";
@@ -27,10 +28,8 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       opacity = 1,
       feather = 0.08,
       glow = 0,
-      dashed = false,
-      dashSize = 0.12,
-      gapSize = 0.08,
-      billboard = false,
+      dash,
+      billboardMode = "none",
       depthTest = true,
       renderOrder,
       fade = 0,
@@ -44,46 +43,45 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
 
     React.useImperativeHandle(forwardedRef, () => meshRef.current as THREE.Mesh);
 
-    const geometry = React.useMemo(
-      () => buildRibbonGeometry(points, { closed, segments, curveType, width, widthProfile }),
-      [points, closed, segments, curveType, width, widthProfile],
-    );
+    const geometry = React.useMemo(() => {
+      const sampling = normalizeSamplingOptions({ closed, segments, curveType });
+      const style = normalizeRibbonStyle({ width, widthProfile, dash });
+      return buildRibbonGeometry(points, { ...sampling, ...style });
+    }, [points, closed, segments, curveType, width, widthProfile, dash]);
 
-    const material = React.useMemo(
-      () =>
-        createFeatheredRibbonMaterial({
-          color,
-          colorStart,
-          colorEnd,
-          opacity,
-          feather,
-          glow,
-          dashed,
-          dashSize,
-          gapSize,
-          depthTest,
-          fade,
-          animated,
-          pulseSpeed,
-          blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
-        }),
-      [
+    const material = React.useMemo(() => {
+      const style = normalizeRibbonStyle({
         color,
         colorStart,
         colorEnd,
         opacity,
         feather,
         glow,
-        dashed,
-        dashSize,
-        gapSize,
+        dash,
         depthTest,
+        blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
+      });
+
+      return createFeatheredRibbonMaterial({
+        ...style,
         fade,
         animated,
         pulseSpeed,
-        additive,
-      ],
-    );
+      });
+    }, [
+      color,
+      colorStart,
+      colorEnd,
+      opacity,
+      feather,
+      glow,
+      dash,
+      depthTest,
+      fade,
+      animated,
+      pulseSpeed,
+      additive,
+    ]);
 
     React.useEffect(() => {
       return () => {
@@ -93,7 +91,7 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
     }, [geometry, material]);
 
     useFrame(({ camera, clock }) => {
-      if (billboard && meshRef.current) {
+      if (billboardMode === "object" && meshRef.current) {
         meshRef.current.quaternion.copy(camera.quaternion);
       }
 

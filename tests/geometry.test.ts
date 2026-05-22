@@ -1,6 +1,7 @@
-import type * as THREE from "three";
+import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import { buildRibbonGeometry } from "../src/geometry/buildRibbonGeometry";
+import { buildStableFrames } from "../src/geometry/frames";
 
 function numericArray(attribute: THREE.BufferAttribute): number[] {
   return Array.from(attribute.array as ArrayLike<number>);
@@ -75,6 +76,68 @@ describe("buildRibbonGeometry", () => {
     }
   });
 
+  it("normalizes invalid width callback values", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      {
+        segments: 4,
+        curveType: "polyline",
+        widthCallback: (t) => {
+          if (t < 0.25) {
+            return Number.NaN;
+          }
+          if (t < 0.5) {
+            return -10;
+          }
+          if (t < 0.75) {
+            return Number.POSITIVE_INFINITY;
+          }
+          return 100;
+        },
+      },
+    );
+
+    const positions = numericArray(geometry.getAttribute("position") as THREE.BufferAttribute);
+    expect(positions.every(Number.isFinite)).toBe(true);
+  });
+
+  it("does not let dash options affect geometry output", () => {
+    const points = [
+      [0, 0, 0],
+      [1, 0, 0],
+      [2, 1, 0],
+    ] as const;
+    const baseGeometry = buildRibbonGeometry(points, { segments: 8, curveType: "polyline" });
+    const dashedGeometry = buildRibbonGeometry(points, {
+      segments: 8,
+      curveType: "polyline",
+      dash: { enabled: true, size: 0.2, gap: 0.1, phase: 0.5 },
+    });
+
+    expect(numericArray(dashedGeometry.getAttribute("position") as THREE.BufferAttribute)).toEqual(
+      numericArray(baseGeometry.getAttribute("position") as THREE.BufferAttribute),
+    );
+    expect(numericArray(dashedGeometry.getIndex() as THREE.BufferAttribute)).toEqual(
+      numericArray(baseGeometry.getIndex() as THREE.BufferAttribute),
+    );
+  });
+
+  it("computes bounds for non-empty geometry", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      { segments: 4, curveType: "polyline" },
+    );
+
+    expect(geometry.boundingBox).not.toBeNull();
+    expect(geometry.boundingSphere).not.toBeNull();
+  });
+
   it("adds closing triangles for closed paths", () => {
     const openGeometry = buildRibbonGeometry(
       [
@@ -98,5 +161,44 @@ describe("buildRibbonGeometry", () => {
 
     expect(openGeometry.getIndex()?.count).toBe((openSampleCount - 1) * 6);
     expect(closedGeometry.getIndex()?.count).toBe(closedSampleCount * 6);
+  });
+
+  it("keeps frame attributes finite through sharp 3D turns", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 1, 1],
+        [0, 2, -1],
+        [2, 3, 0],
+      ],
+      { segments: 24, curveType: "polyline" },
+    );
+
+    for (const name of ["position", "normal", "uv", "pathProgress", "side"] as const) {
+      const values = numericArray(geometry.getAttribute(name) as THREE.BufferAttribute);
+      expect(values.every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it("builds finite stable frames for axis-aligned and near-parallel tangents", () => {
+    const frames = buildStableFrames(
+      [
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 0.000001, y: 0, z: 1 },
+      ].map((value) => new THREE.Vector3(value.x, value.y, value.z)),
+    );
+
+    expect(frames).toHaveLength(4);
+    for (const frame of frames) {
+      expect(frame.tangent.length()).toBeCloseTo(1);
+      expect(frame.normal.length()).toBeCloseTo(1);
+      expect(frame.side.length()).toBeCloseTo(1);
+      expect(
+        [frame.tangent, frame.normal, frame.side].every((vector) => Number.isFinite(vector.x)),
+      ).toBe(true);
+    }
   });
 });

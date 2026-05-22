@@ -22,7 +22,9 @@ export function MotionTrail({
   React.useEffect(() => {
     if (points) {
       pointsRef.current = points.map((point) =>
-        Array.isArray(point) ? new THREE.Vector3(point[0], point[1], point[2]) : point.clone(),
+        point instanceof THREE.Vector3
+          ? point.clone()
+          : new THREE.Vector3(point[0], point[1], point[2]),
       );
       forceVersion();
     }

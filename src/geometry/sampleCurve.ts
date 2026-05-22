@@ -1,12 +1,9 @@
 import * as THREE from "three";
-import type { CurveType, VectorEffectPoint } from "../types";
+import { normalizeSamplingOptions } from "../core/normalize";
+import type { PathSamplingOptions, VectorEffectPoint } from "../types";
 import { EPSILON, clamp } from "../utils/math";
 
-export interface SampleCurveOptions {
-  closed?: boolean;
-  segments?: number;
-  curveType?: CurveType;
-}
+export type SampleCurveOptions = PathSamplingOptions;
 
 export interface SampledPath {
   points: THREE.Vector3[];
@@ -17,13 +14,18 @@ export interface SampledPath {
   closed: boolean;
 }
 
-export function toVector3Array(points: VectorEffectPoint[]): THREE.Vector3[] {
+export function toVector3Array(points: readonly VectorEffectPoint[]): THREE.Vector3[] {
   return points.map((point) =>
-    Array.isArray(point) ? new THREE.Vector3(point[0], point[1], point[2]) : point.clone(),
+    point instanceof THREE.Vector3
+      ? point.clone()
+      : new THREE.Vector3(point[0], point[1], point[2]),
   );
 }
 
-export function compactPoints(points: VectorEffectPoint[], closed = false): THREE.Vector3[] {
+export function compactPoints(
+  points: readonly VectorEffectPoint[],
+  closed = false,
+): THREE.Vector3[] {
   const vectors = toVector3Array(points).filter(
     (point) => Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z),
   );
@@ -48,23 +50,21 @@ export function compactPoints(points: VectorEffectPoint[], closed = false): THRE
 }
 
 export function sampleCurve(
-  points: VectorEffectPoint[],
+  points: readonly VectorEffectPoint[],
   options: SampleCurveOptions = {},
 ): SampledPath {
-  const closed = options.closed ?? false;
-  const curveType = options.curveType ?? "catmullrom";
+  const { closed, curveType, segments } = normalizeSamplingOptions(options);
   const clean = compactPoints(points, closed);
-  const requestedSegments = Math.max(1, Math.floor(options.segments ?? 64));
 
   if (clean.length < 2) {
     return emptySampledPath(closed);
   }
 
   if (curveType === "polyline" || clean.length < 3) {
-    return samplePolyline(clean, requestedSegments, closed);
+    return samplePolyline(clean, segments, closed);
   }
 
-  return sampleCatmullRom(clean, requestedSegments, closed);
+  return sampleCatmullRom(clean, segments, closed);
 }
 
 function emptySampledPath(closed: boolean): SampledPath {

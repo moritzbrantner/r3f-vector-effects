@@ -2,26 +2,10 @@ import {
   buildRibbonGeometry,
   createFeatheredRibbonMaterial,
 } from "@moritzbrantner/r3f-vector-effects";
+import { createTslRibbonMaterial } from "@moritzbrantner/r3f-vector-effects/experimental/tsl";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import {
-  abs,
-  attribute,
-  clamp,
-  color,
-  float,
-  max,
-  mix,
-  mod,
-  mul,
-  oneMinus,
-  pow,
-  smoothstep,
-  step,
-  sub,
-  uv,
-} from "three/tsl";
-import { MeshBasicNodeMaterial, WebGPURenderer } from "three/webgpu";
+import { WebGPURenderer } from "three/webgpu";
 import "./styles.css";
 
 type RendererMode = "webgl" | "webgpu";
@@ -347,9 +331,7 @@ function createMaterials(settings: BenchmarkSettings): BenchmarkScene["materials
         opacity: 0.86,
         feather: 0.22,
         glow: 0.45,
-        dashed: index % 2 === 0,
-        dashSize: 0.075,
-        gapSize: 0.038,
+        dash: { enabled: index % 2 === 0, size: 0.075, gap: 0.038 },
         depthTest: false,
         animated: settings.animate,
         pulseSpeed: 1.8,
@@ -363,43 +345,9 @@ function createMaterials(settings: BenchmarkSettings): BenchmarkScene["materials
       opacity: 0.86,
       feather: 0.22,
       glow: 0.45,
-      dashed: index % 2 === 0,
-      dashSize: 0.075,
-      gapSize: 0.038,
+      dash: { enabled: index % 2 === 0, size: 0.075, gap: 0.038 },
     });
   });
-}
-
-function createTslRibbonMaterial(options: {
-  colorStart: string;
-  colorEnd: string;
-  opacity: number;
-  feather: number;
-  glow: number;
-  dashed: boolean;
-  dashSize: number;
-  gapSize: number;
-}): THREE.Material {
-  const material = new MeshBasicNodeMaterial({
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const progress = clamp(attribute("pathProgress", "float"), 0, 1);
-  const edgeDistance = oneMinus(abs(sub(mul(uv().y, 2), 1)));
-  const edgeAlpha = smoothstep(0, Math.max(options.feather, 0.0001), edgeDistance);
-  const glowAlpha = mul(
-    pow(max(edgeDistance, 0), 1 / (1 + options.glow * 3)),
-    options.glow > 0 ? 0.75 : 0,
-  );
-  const dashAlpha = options.dashed
-    ? step(mod(progress, options.dashSize + options.gapSize), options.dashSize)
-    : float(1);
-
-  material.colorNode = mix(color(options.colorStart), color(options.colorEnd), progress);
-  material.opacityNode = mul(max(edgeAlpha, glowAlpha), dashAlpha, options.opacity);
-  return material;
 }
 
 function createPathPoints(

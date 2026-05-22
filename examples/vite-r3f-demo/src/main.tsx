@@ -91,9 +91,7 @@ function Scene(): React.JSX.Element {
             colorEnd={colorEnd}
             feather={feather}
             glow={glow}
-            dashed={dashed}
-            dashSize={0.12}
-            gapSize={0.06}
+            dash={{ enabled: dashed, size: 0.12, gap: 0.06 }}
             depthTest={false}
             renderOrder={5}
           />

@@ -6,6 +6,9 @@ import { InternalVectorPath3D } from "./VectorPath3D";
 export function NeonCurve({
   points,
   color = "#66ccff",
+  closed = false,
+  segments = 64,
+  curveType = "catmullrom",
   coreWidth = 0.04,
   glowWidth = 0.3,
   intensity = 1.6,
@@ -19,6 +22,9 @@ export function NeonCurve({
     <group>
       <InternalVectorPath3D
         points={points}
+        closed={closed}
+        segments={segments}
+        curveType={curveType}
         width={glowWidth}
         color={color}
         opacity={glowOpacity}
@@ -32,6 +38,9 @@ export function NeonCurve({
       />
       <InternalVectorPath3D
         points={points}
+        closed={closed}
+        segments={segments}
+        curveType={curveType}
         width={coreWidth}
         colorStart={new THREE.Color(color).multiplyScalar(Math.max(1, intensity * 0.6))}
         colorEnd={color}

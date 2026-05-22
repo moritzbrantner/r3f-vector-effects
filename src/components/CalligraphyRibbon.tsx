@@ -8,6 +8,9 @@ import { clamp } from "../utils/math";
 export function CalligraphyRibbon({
   points,
   color = "#ffffff",
+  closed = false,
+  segments = 96,
+  curveType = "catmullrom",
   width = 0.18,
   pressureProfile = "middle-heavy",
   customPressure,
@@ -20,12 +23,13 @@ export function CalligraphyRibbon({
   const geometry = React.useMemo(
     () =>
       buildRibbonGeometry(points, {
-        segments: 96,
+        closed,
+        segments,
         width,
         widthCallback: pressure,
-        curveType: "catmullrom",
+        curveType,
       }),
-    [points, width, pressure],
+    [points, closed, segments, curveType, width, pressure],
   );
 
   const material = React.useMemo(

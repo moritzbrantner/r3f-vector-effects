@@ -1,36 +1,55 @@
 import type * as React from "react";
 import type * as THREE from "three";
 
-export type VectorEffectPoint = [number, number, number] | THREE.Vector3;
+export type VectorEffectPoint = readonly [number, number, number] | THREE.Vector3;
 
 export type CurveType = "catmullrom" | "polyline";
 
 export type WidthProfile = "constant" | "taper" | "calligraphy" | "pulse";
 
-export interface VectorPath3DProps {
-  points: VectorEffectPoint[];
+export type BillboardMode = "none" | "object";
+
+export interface PathSamplingOptions {
   closed?: boolean;
   segments?: number;
   curveType?: CurveType;
+}
+
+export interface DashStyle {
+  enabled?: boolean;
+  size?: number;
+  gap?: number;
+  phase?: number;
+  units?: "progress";
+}
+
+export interface RibbonStyle {
   width?: number;
   widthProfile?: WidthProfile;
+  widthCallback?: (t: number) => number;
+  feather?: number;
+  glow?: number;
+  opacity?: number;
   color?: THREE.ColorRepresentation;
   colorStart?: THREE.ColorRepresentation;
   colorEnd?: THREE.ColorRepresentation;
-  opacity?: number;
-  feather?: number;
-  glow?: number;
-  dashed?: boolean;
-  dashSize?: number;
-  gapSize?: number;
-  billboard?: boolean;
+  dash?: DashStyle;
   depthTest?: boolean;
+  blending?: THREE.Blending;
+}
+
+export interface VectorPath3DProps extends PathSamplingOptions, RibbonStyle {
+  points: readonly VectorEffectPoint[];
+  billboardMode?: BillboardMode;
   renderOrder?: number;
 }
 
 export interface NeonCurveProps {
-  points: VectorEffectPoint[];
+  points: readonly VectorEffectPoint[];
   color?: THREE.ColorRepresentation;
+  closed?: boolean;
+  segments?: number;
+  curveType?: CurveType;
   coreWidth?: number;
   glowWidth?: number;
   intensity?: number;
@@ -41,8 +60,11 @@ export interface NeonCurveProps {
 export type PressureProfile = "start-end-taper" | "middle-heavy" | "sinusoidal" | "custom";
 
 export interface CalligraphyRibbonProps {
-  points: VectorEffectPoint[];
+  points: readonly VectorEffectPoint[];
   color?: THREE.ColorRepresentation;
+  closed?: boolean;
+  segments?: number;
+  curveType?: CurveType;
   width?: number;
   pressureProfile?: PressureProfile;
   customPressure?: (t: number) => number;
@@ -50,7 +72,7 @@ export interface CalligraphyRibbonProps {
 
 export interface MotionTrailProps {
   targetRef?: React.RefObject<THREE.Object3D>;
-  points?: VectorEffectPoint[];
+  points?: readonly VectorEffectPoint[];
   maxPoints?: number;
   width?: number;
   color?: THREE.ColorRepresentation;

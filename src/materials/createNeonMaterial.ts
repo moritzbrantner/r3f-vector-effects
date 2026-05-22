@@ -1,12 +1,10 @@
 import * as THREE from "three";
 import {
-  type FeatheredRibbonMaterialOptions,
+  type RibbonMaterialOptions,
   createFeatheredRibbonMaterial,
 } from "./createFeatheredRibbonMaterial";
 
-export function createNeonMaterial(
-  options: FeatheredRibbonMaterialOptions = {},
-): THREE.ShaderMaterial {
+export function createNeonMaterial(options: RibbonMaterialOptions = {}): THREE.ShaderMaterial {
   return createFeatheredRibbonMaterial({
     feather: 0.35,
     glow: 1,
