@@ -8,6 +8,7 @@ import type {
   CalligraphyRibbonProps,
   DashStyle,
   FeatheredPlaneProps,
+  FeatheredRibbonMaterialOptions,
   MotionTrailProps,
   NeonCurveProps,
   PathSamplingOptions,
@@ -34,6 +35,7 @@ describe("public API", () => {
       "createNeonMaterial",
       "sampleCurve",
       "toVector3Array",
+      "updateMaterialUniforms",
     ]);
   });
 
@@ -62,6 +64,13 @@ describe("public API", () => {
     const frameOptions: BuildStableFramesOptions = { up: [0, 1, 0], billboard: false };
     const tubeOptions: BuildTubePathGeometryOptions = { radius: 0.05 };
     const materialOptions: RibbonMaterialOptions = { color: "white", dash };
+    const featheredOptions: FeatheredRibbonMaterialOptions = {
+      colorStart: "white",
+      colorEnd: "black",
+      dashed: true,
+      dashSize: 0.2,
+      gapSize: 0.1,
+    };
 
     expect({
       sampling,
@@ -74,6 +83,7 @@ describe("public API", () => {
       frameOptions,
       tubeOptions,
       materialOptions,
+      featheredOptions,
     }).toBeDefined();
   });
 
@@ -97,6 +107,7 @@ describe("public API", () => {
       "createFeatheredRibbonMaterial",
       "createGradientLineMaterial",
       "createNeonMaterial",
+      "updateMaterialUniforms",
     ]);
   });
 });

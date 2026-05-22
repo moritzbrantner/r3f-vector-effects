@@ -8,6 +8,7 @@ export const ribbonFragmentShader = /* glsl */ `
   uniform float dashSize;
   uniform float gapSize;
   uniform float dashPhase;
+  uniform float alphaTest;
   uniform float fade;
   uniform float time;
   uniform float animated;
@@ -15,35 +16,47 @@ export const ribbonFragmentShader = /* glsl */ `
 
   varying vec2 vUv;
   varying float vProgress;
+  varying float vSide;
 
   void main() {
-    vec3 color = mix(colorStart, colorEnd, clamp(vProgress, 0.0, 1.0));
+    float progress = clamp(vProgress, 0.0, 1.0);
+    vec3 color = mix(colorStart, colorEnd, progress);
 
-    // v is 0 at one ribbon edge, 1 at the other, and 0.5 in the center.
-    float edgeDistance = 1.0 - abs(vUv.y * 2.0 - 1.0);
+    // uv.y and side both run across the ribbon width; using both makes custom
+    // geometries resilient as long as one attribute is present and normalized.
+    float uvAcross = clamp(vUv.y, 0.0, 1.0);
+    float sideAcross = clamp(vSide * 0.5 + 0.5, 0.0, 1.0);
+    float uvEdgeDistance = 1.0 - abs(uvAcross * 2.0 - 1.0);
+    float sideEdgeDistance = 1.0 - abs(sideAcross * 2.0 - 1.0);
+    float edgeDistance = clamp(max(uvEdgeDistance, sideEdgeDistance), 0.0, 1.0);
+
+    float safeFeather = clamp(feather, 0.0001, 1.0);
     float edgeAlpha = feather <= 0.0001
       ? 1.0
-      : smoothstep(0.0, clamp(feather, 0.0001, 1.0), edgeDistance);
+      : smoothstep(0.0, safeFeather, edgeDistance);
 
     if (glow > 0.0) {
-      float glowCurve = pow(max(edgeDistance, 0.0), 1.0 / (1.0 + glow * 3.0));
-      edgeAlpha = max(edgeAlpha, glowCurve * 0.75);
+      float safeGlow = max(glow, 0.0);
+      float glowCurve = pow(max(edgeDistance, 0.0001), 1.0 / (1.0 + safeGlow * 3.0));
+      edgeAlpha = max(edgeAlpha, glowCurve * clamp(safeGlow, 0.0, 1.5) * 0.5);
     }
 
     float dashAlpha = 1.0;
     if (dashed > 0.5) {
-      float cycle = max(dashSize + gapSize, 0.0001);
-      float localProgress = mod(vProgress + dashPhase, cycle);
-      dashAlpha = step(localProgress, dashSize);
+      float safeDashSize = max(dashSize, 0.0001);
+      float safeGapSize = max(gapSize, 0.0001);
+      float cycle = max(safeDashSize + safeGapSize, 0.0001);
+      float localProgress = mod(progress + dashPhase, cycle);
+      dashAlpha = 1.0 - step(safeDashSize, localProgress);
     }
 
-    float fadeAlpha = fade <= 0.0 ? 1.0 : pow(clamp(vProgress, 0.0, 1.0), fade);
+    float fadeAlpha = fade <= 0.0 ? 1.0 : pow(progress, max(fade, 0.0));
     float pulse = animated > 0.5
-      ? 0.85 + 0.15 * sin(time * pulseSpeed + vProgress * 6.28318530718)
+      ? 0.85 + 0.15 * sin(time * pulseSpeed + progress * 6.28318530718)
       : 1.0;
     float alpha = opacity * edgeAlpha * dashAlpha * fadeAlpha * pulse;
 
-    if (alpha <= 0.001) {
+    if (alpha <= max(alphaTest, 0.0)) {
       discard;
     }
 

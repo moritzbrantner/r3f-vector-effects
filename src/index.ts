@@ -13,6 +13,7 @@ export {
   createFeatheredRibbonMaterial,
   createGradientLineMaterial,
   createNeonMaterial,
+  updateMaterialUniforms,
 } from "./materials";
 
 export type {
@@ -20,6 +21,7 @@ export type {
   CalligraphyRibbonProps,
   CurveType,
   DashStyle,
+  FeatheredRibbonMaterialOptions,
   FeatheredPlaneProps,
   MotionTrailProps,
   NeonCurveProps,
@@ -36,4 +38,4 @@ export type {
   BuildTubePathGeometryOptions,
   RibbonFrame,
 } from "./geometry";
-export type { FeatheredRibbonMaterialOptions, RibbonMaterialOptions } from "./materials";
+export type { RibbonMaterialOptions } from "./materials";

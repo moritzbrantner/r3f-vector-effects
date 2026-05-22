@@ -1,5 +1,8 @@
 export { createGradientLineMaterial } from "./materials/createGradientLineMaterial";
-export { createFeatheredRibbonMaterial } from "./materials/createFeatheredRibbonMaterial";
+export {
+  createFeatheredRibbonMaterial,
+  updateMaterialUniforms,
+} from "./materials/createFeatheredRibbonMaterial";
 export { createNeonMaterial } from "./materials/createNeonMaterial";
 
 export type {

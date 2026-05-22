@@ -3,7 +3,10 @@ import * as React from "react";
 import * as THREE from "three";
 import { normalizeRibbonStyle, normalizeSamplingOptions } from "../core/normalize";
 import { buildRibbonGeometry } from "../geometry/buildRibbonGeometry";
-import { createFeatheredRibbonMaterial } from "../materials/createFeatheredRibbonMaterial";
+import {
+  createFeatheredRibbonMaterial,
+  updateMaterialUniforms,
+} from "../materials/createFeatheredRibbonMaterial";
 import type { VectorPath3DProps } from "../types";
 
 interface InternalVectorPath3DProps extends VectorPath3DProps {
@@ -49,8 +52,10 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       return buildRibbonGeometry(points, { ...sampling, ...style });
     }, [points, closed, segments, curveType, width, widthProfile, dash]);
 
-    const material = React.useMemo(() => {
-      const style = normalizeRibbonStyle({
+    const material = React.useMemo(() => createFeatheredRibbonMaterial(), []);
+
+    React.useEffect(() => {
+      updateMaterialUniforms(material, {
         color,
         colorStart,
         colorEnd,
@@ -60,15 +65,12 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
         dash,
         depthTest,
         blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
-      });
-
-      return createFeatheredRibbonMaterial({
-        ...style,
         fade,
         animated,
         pulseSpeed,
       });
     }, [
+      material,
       color,
       colorStart,
       colorEnd,
@@ -86,9 +88,14 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
     React.useEffect(() => {
       return () => {
         geometry.dispose();
+      };
+    }, [geometry]);
+
+    React.useEffect(() => {
+      return () => {
         material.dispose();
       };
-    }, [geometry, material]);
+    }, [material]);
 
     useFrame(({ camera, clock }) => {
       if (billboardMode === "object" && meshRef.current) {

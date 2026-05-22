@@ -48,6 +48,30 @@ export interface RibbonStyle {
   blending?: THREE.Blending;
 }
 
+export interface FeatheredRibbonMaterialOptions {
+  color?: THREE.ColorRepresentation;
+  colorStart?: THREE.ColorRepresentation;
+  colorEnd?: THREE.ColorRepresentation;
+  opacity?: number;
+  feather?: number;
+  glow?: number;
+  dashed?: boolean;
+  dashSize?: number;
+  gapSize?: number;
+  dashPhase?: number;
+  alphaTest?: number;
+  depthTest?: boolean;
+  depthWrite?: boolean;
+  transparent?: boolean;
+  blending?: THREE.Blending;
+  /** Backwards-compatible grouped dash style used by VectorPath3D. */
+  dash?: DashStyle;
+  /** Fade alpha from the start of the path. */
+  fade?: number;
+  animated?: boolean;
+  pulseSpeed?: number;
+}
+
 export interface VectorPath3DProps extends PathSamplingOptions, RibbonStyle {
   points: readonly VectorEffectPoint[];
   billboardMode?: BillboardMode;
