@@ -1,7 +1,7 @@
 import type * as React from "react";
 import * as THREE from "three";
 import type { NeonCurveProps } from "../types";
-import { VectorPath3D } from "./VectorPath3D";
+import { InternalVectorPath3D } from "./VectorPath3D";
 
 export function NeonCurve({
   points,
@@ -17,7 +17,7 @@ export function NeonCurve({
 
   return (
     <group>
-      <VectorPath3D
+      <InternalVectorPath3D
         points={points}
         width={glowWidth}
         color={color}
@@ -30,7 +30,7 @@ export function NeonCurve({
         pulseSpeed={pulseSpeed}
         additive
       />
-      <VectorPath3D
+      <InternalVectorPath3D
         points={points}
         width={coreWidth}
         colorStart={new THREE.Color(color).multiplyScalar(Math.max(1, intensity * 0.6))}

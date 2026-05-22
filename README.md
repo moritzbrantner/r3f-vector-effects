@@ -138,7 +138,7 @@ It handles short point arrays, duplicate points, closed paths, and very small se
 
 ```bash
 bun install
-bun run demo
+bun run example:dev
 ```
 
 The demo lives in `examples/vite-r3f-demo` and includes controls for width, feather, glow, dashes,

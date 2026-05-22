@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import * as React from "react";
 import * as THREE from "three";
 import type { MotionTrailProps, VectorEffectPoint } from "../types";
-import { VectorPath3D } from "./VectorPath3D";
+import { InternalVectorPath3D } from "./VectorPath3D";
 
 const WORLD_POSITION = new THREE.Vector3();
 
@@ -58,7 +58,7 @@ export function MotionTrail({
   }
 
   return (
-    <VectorPath3D
+    <InternalVectorPath3D
       points={renderPoints}
       segments={Math.max(2, Math.min(maxPoints * 2, 128))}
       curveType="polyline"

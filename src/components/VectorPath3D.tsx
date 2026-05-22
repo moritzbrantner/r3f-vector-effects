@@ -12,7 +12,7 @@ interface InternalVectorPath3DProps extends VectorPath3DProps {
   additive?: boolean;
 }
 
-export const VectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorPath3DProps>(
+export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorPath3DProps>(
   function VectorPath3D(
     {
       points,
@@ -103,5 +103,11 @@ export const VectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorPath3DPro
     });
 
     return <mesh ref={meshRef} geometry={geometry} material={material} renderOrder={renderOrder} />;
+  },
+);
+
+export const VectorPath3D = React.forwardRef<THREE.Mesh, VectorPath3DProps>(
+  function VectorPath3D(props, forwardedRef) {
+    return <InternalVectorPath3D {...props} ref={forwardedRef} />;
   },
 );
