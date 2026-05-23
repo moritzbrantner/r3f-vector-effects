@@ -18,6 +18,16 @@ export const TubePath3D = React.forwardRef<THREE.Mesh, TubePath3DProps>(function
     depthTest = true,
     renderOrder,
     material,
+    frustumCulled,
+    visible,
+    userData,
+    name,
+    position,
+    rotation,
+    scale,
+    onPointerOver,
+    onPointerOut,
+    onClick,
   },
   forwardedRef,
 ) {
@@ -34,17 +44,16 @@ export const TubePath3D = React.forwardRef<THREE.Mesh, TubePath3DProps>(function
     [points, closed, segments, curveType, epsilon, radius, radialSegments],
   );
   const normalizedOpacity = clamp(isFiniteNumber(opacity) ? opacity : 1, 0, 1);
-  const meshMaterial = React.useMemo(
-    () =>
-      material ??
-      new THREE.MeshBasicMaterial({
-        color,
-        opacity: normalizedOpacity,
-        transparent: normalizedOpacity < 1,
-        depthTest,
-      }),
-    [material, color, normalizedOpacity, depthTest],
-  );
+  const internalMaterial = React.useMemo(() => new THREE.MeshBasicMaterial(), []);
+  const meshMaterial = material ?? internalMaterial;
+
+  React.useEffect(() => {
+    internalMaterial.color.set(color);
+    internalMaterial.opacity = normalizedOpacity;
+    internalMaterial.transparent = normalizedOpacity < 1;
+    internalMaterial.depthTest = depthTest;
+    internalMaterial.needsUpdate = true;
+  }, [internalMaterial, color, normalizedOpacity, depthTest]);
 
   React.useEffect(() => {
     return () => {
@@ -53,14 +62,12 @@ export const TubePath3D = React.forwardRef<THREE.Mesh, TubePath3DProps>(function
   }, [geometry]);
 
   React.useEffect(() => {
-    if (material) {
-      return undefined;
-    }
-
     return () => {
-      meshMaterial.dispose();
+      internalMaterial.dispose();
     };
-  }, [meshMaterial, material]);
+  }, [internalMaterial]);
+
+  const eventHandlers = { onPointerOver, onPointerOut, onClick };
 
   return (
     <mesh
@@ -68,6 +75,14 @@ export const TubePath3D = React.forwardRef<THREE.Mesh, TubePath3DProps>(function
       geometry={geometry}
       material={meshMaterial}
       renderOrder={renderOrder}
+      frustumCulled={frustumCulled}
+      visible={visible}
+      userData={userData}
+      name={name}
+      position={position}
+      rotation={rotation}
+      scale={scale}
+      {...eventHandlers}
     />
   );
 });

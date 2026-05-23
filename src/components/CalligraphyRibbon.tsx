@@ -1,56 +1,80 @@
 import * as React from "react";
-import * as THREE from "three";
-import { buildRibbonGeometry } from "../geometry/buildRibbonGeometry";
-import { createFeatheredRibbonMaterial } from "../materials/createFeatheredRibbonMaterial";
+import type * as THREE from "three";
 import type { CalligraphyRibbonProps } from "../types";
 import { clamp } from "../utils/math";
+import { InternalVectorPath3D } from "./VectorPath3D";
 
-export function CalligraphyRibbon({
-  points,
-  color = "#ffffff",
-  closed = false,
-  segments = 96,
-  curveType = "catmull-rom",
-  width = 0.18,
-  pressureProfile = "middle-heavy",
-  customPressure,
-}: CalligraphyRibbonProps): React.JSX.Element {
-  const pressure = React.useMemo(
-    () => pressureFunction(pressureProfile, customPressure),
-    [pressureProfile, customPressure],
-  );
+export const CalligraphyRibbon = React.forwardRef<THREE.Mesh, CalligraphyRibbonProps>(
+  function CalligraphyRibbon(
+    {
+      points,
+      color = "#ffffff",
+      colorStart,
+      colorEnd,
+      opacity = 0.96,
+      feather = 0.16,
+      glow = 0,
+      dash,
+      depthTest = true,
+      closed = false,
+      segments = 96,
+      curveType = "catmull-rom",
+      width = 0.18,
+      pressureProfile = "middle-heavy",
+      customPressure,
+      billboardMode = "none",
+      renderOrder,
+      visible,
+      userData,
+      name,
+      frustumCulled,
+      position,
+      rotation,
+      scale,
+      onPointerOver,
+      onPointerOut,
+      onClick,
+    },
+    forwardedRef,
+  ): React.JSX.Element {
+    const pressure = React.useMemo(
+      () => pressureFunction(pressureProfile, customPressure),
+      [pressureProfile, customPressure],
+    );
 
-  const geometry = React.useMemo(
-    () =>
-      buildRibbonGeometry(points, {
-        closed,
-        segments,
-        width,
-        widthCallback: pressure,
-        curveType,
-      }),
-    [points, closed, segments, curveType, width, pressure],
-  );
-
-  const material = React.useMemo(
-    () =>
-      createFeatheredRibbonMaterial({
-        color,
-        opacity: 0.96,
-        feather: 0.16,
-      }),
-    [color],
-  );
-
-  React.useEffect(() => {
-    return () => {
-      geometry.dispose();
-      material.dispose();
-    };
-  }, [geometry, material]);
-
-  return <mesh geometry={geometry} material={material} />;
-}
+    return (
+      <InternalVectorPath3D
+        ref={forwardedRef}
+        points={points}
+        closed={closed}
+        segments={segments}
+        curveType={curveType}
+        width={width}
+        widthCallback={pressure}
+        color={color}
+        colorStart={colorStart}
+        colorEnd={colorEnd}
+        opacity={opacity}
+        feather={feather}
+        glow={glow}
+        dash={dash}
+        billboardMode={billboardMode}
+        depthTest={depthTest}
+        renderOrder={renderOrder}
+        visible={visible}
+        userData={userData}
+        name={name}
+        frustumCulled={frustumCulled}
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
+        onClick={onClick}
+      />
+    );
+  },
+);
 
 function pressureFunction(
   profile: CalligraphyRibbonProps["pressureProfile"],

@@ -6,18 +6,42 @@ import { InternalVectorPath3D } from "./VectorPath3D";
 
 const WORLD_POSITION = new THREE.Vector3();
 
-export function MotionTrail({
-  targetRef,
-  points,
-  maxPoints = 80,
-  width = 0.08,
-  color = "#66ccff",
-  decay = 1.8,
-  updateEvery = 0.033,
-}: MotionTrailProps): React.JSX.Element | null {
+export const MotionTrail = React.forwardRef<THREE.Mesh, MotionTrailProps>(function MotionTrail(
+  {
+    targetRef,
+    points,
+    maxPoints = 80,
+    width = 0.08,
+    color = "#66ccff",
+    colorStart,
+    colorEnd,
+    opacity = 0.95,
+    feather = 0.3,
+    glow = 0.7,
+    decay = 1.8,
+    updateEvery = 0.033,
+    minDistance = 0.001,
+    paused = false,
+    depthTest = false,
+    renderOrder = 20,
+    visible,
+    userData,
+    name,
+    frustumCulled,
+    position,
+    rotation,
+    scale,
+    onPointerOver,
+    onPointerOut,
+    onClick,
+  },
+  forwardedRef,
+): React.JSX.Element | null {
   const pointsRef = React.useRef<THREE.Vector3[]>([]);
   const elapsedSinceUpdate = React.useRef(0);
   const [, forceVersion] = React.useReducer((value: number) => value + 1, 0);
+  const normalizedMinDistance = Number.isFinite(minDistance) ? Math.max(0, minDistance) : 0.001;
+  const minDistanceSquared = normalizedMinDistance * normalizedMinDistance;
 
   React.useEffect(() => {
     if (points) {
@@ -31,7 +55,7 @@ export function MotionTrail({
   }, [points]);
 
   useFrame((_, delta) => {
-    if (!targetRef?.current || points) {
+    if (paused || !targetRef?.current || points) {
       return;
     }
 
@@ -45,7 +69,7 @@ export function MotionTrail({
     const trail = pointsRef.current;
     const last = trail.length > 0 ? trail[trail.length - 1] : undefined;
 
-    if (!last || last.distanceToSquared(WORLD_POSITION) > 1e-6) {
+    if (!last || last.distanceToSquared(WORLD_POSITION) > minDistanceSquared) {
       trail.push(WORLD_POSITION.clone());
       while (trail.length > maxPoints) {
         trail.shift();
@@ -61,19 +85,32 @@ export function MotionTrail({
 
   return (
     <InternalVectorPath3D
+      ref={forwardedRef}
       points={renderPoints}
       segments={Math.max(2, Math.min(maxPoints * 2, 128))}
       curveType="polyline"
       width={width}
       widthProfile="taper"
       color={color}
-      opacity={0.95}
-      feather={0.3}
-      glow={0.7}
+      colorStart={colorStart}
+      colorEnd={colorEnd}
+      opacity={opacity}
+      feather={feather}
+      glow={glow}
       fade={decay}
-      depthTest={false}
-      renderOrder={20}
+      depthTest={depthTest}
+      renderOrder={renderOrder}
+      visible={visible}
+      userData={userData}
+      name={name}
+      frustumCulled={frustumCulled}
+      position={position}
+      rotation={rotation}
+      scale={scale}
+      onPointerOver={onPointerOver}
+      onPointerOut={onPointerOut}
+      onClick={onClick}
       additive
     />
   );
-}
+});

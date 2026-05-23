@@ -49,7 +49,18 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       dash,
       billboardMode = "none",
       depthTest = true,
+      depthWrite = false,
       renderOrder,
+      frustumCulled,
+      visible,
+      userData,
+      name,
+      position,
+      rotation,
+      scale,
+      onPointerOver,
+      onPointerOut,
+      onClick,
       fade = 0,
       animated = false,
       pulseSpeed = 1,
@@ -97,6 +108,7 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
         glow,
         dash,
         depthTest,
+        depthWrite,
         blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
         fade,
         animated,
@@ -112,6 +124,7 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       glow,
       dash,
       depthTest,
+      depthWrite,
       fade,
       animated,
       pulseSpeed,
@@ -140,7 +153,24 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       }
     });
 
-    return <mesh ref={meshRef} geometry={geometry} material={material} renderOrder={renderOrder} />;
+    const eventHandlers = { onPointerOver, onPointerOut, onClick };
+
+    return (
+      <mesh
+        ref={meshRef}
+        geometry={geometry}
+        material={material}
+        renderOrder={renderOrder}
+        frustumCulled={frustumCulled}
+        visible={visible}
+        userData={userData}
+        name={name}
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        {...eventHandlers}
+      />
+    );
   },
 );
 
