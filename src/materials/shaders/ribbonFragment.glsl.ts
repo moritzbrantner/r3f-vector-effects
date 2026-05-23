@@ -8,6 +8,7 @@ export const ribbonFragmentShader = /* glsl */ `
   uniform float dashSize;
   uniform float gapSize;
   uniform float dashPhase;
+  uniform float dashUnits;
   uniform float alphaTest;
   uniform float fade;
   uniform float time;
@@ -16,6 +17,7 @@ export const ribbonFragmentShader = /* glsl */ `
 
   varying vec2 vUv;
   varying float vProgress;
+  varying float vPathDistance;
   varying float vSide;
 
   void main() {
@@ -46,8 +48,9 @@ export const ribbonFragmentShader = /* glsl */ `
       float safeDashSize = max(dashSize, 0.0001);
       float safeGapSize = max(gapSize, 0.0001);
       float cycle = max(safeDashSize + safeGapSize, 0.0001);
-      float localProgress = mod(progress + dashPhase, cycle);
-      dashAlpha = 1.0 - step(safeDashSize, localProgress);
+      float dashCoordinate = dashUnits > 0.5 ? max(vPathDistance, 0.0) : progress;
+      float localDash = mod(dashCoordinate + dashPhase, cycle);
+      dashAlpha = 1.0 - step(safeDashSize, localDash);
     }
 
     float fadeAlpha = fade <= 0.0 ? 1.0 : pow(progress, max(fade, 0.0));

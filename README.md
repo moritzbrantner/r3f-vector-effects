@@ -36,7 +36,7 @@ Peer dependencies:
 ```tsx
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { NeonCurve, CalligraphyRibbon } from "@moritzbrantner/r3f-vector-effects";
+import { CalligraphyRibbon, NeonCurve, TubePath3D } from "@moritzbrantner/r3f-vector-effects";
 
 export function Scene() {
   return (
@@ -65,6 +65,15 @@ export function Scene() {
         width={0.18}
         pressureProfile="middle-heavy"
       />
+      <TubePath3D
+        points={[
+          [-2, -1.4, 0],
+          [0, -1.8, 0.4],
+          [2, -1.4, 0],
+        ]}
+        radius={0.035}
+        color="#8cff9a"
+      />
     </Canvas>
   );
 }
@@ -87,6 +96,10 @@ import { buildRibbonGeometry, sampleCurve } from "@moritzbrantner/r3f-vector-eff
 import { createFeatheredRibbonMaterial } from "@moritzbrantner/r3f-vector-effects/materials";
 ```
 
+Stable entrypoints are the root package, `./react`, `./geometry`, and `./materials`. The
+`./experimental/tsl` entrypoint is intentionally unstable and excluded from SemVer guarantees until
+it is promoted to the stable material API.
+
 ## Components
 
 ### VectorPath3D
@@ -94,41 +107,130 @@ import { createFeatheredRibbonMaterial } from "@moritzbrantner/r3f-vector-effect
 General-purpose 3D path renderer. It samples points as a Catmull-Rom curve by default, builds a
 ribbon mesh, and adds UVs where `u` is path progress and `v` is the cross-path coordinate.
 
-Key props:
+| Prop | Purpose |
+| --- | --- |
+| `points` | Path points as `[x, y, z]` tuples or `THREE.Vector3` values. |
+| `closed`, `segments`, `curveType` | Sampling controls. `curveType` accepts `"catmull-rom"`, `"catmullrom"`, or `"polyline"`. |
+| `width`, `widthProfile` | Base width and built-in width profile: `"constant"`, `"taper"`, `"calligraphy"`, or `"pulse"`. |
+| `customWidthProfile`, `widthCallback` | Custom width multipliers sampled from normalized progress. `customWidthProfile` wins if both are provided. |
+| `color`, `colorStart`, `colorEnd` | Solid color or path-progress gradient. |
+| `opacity`, `feather`, `glow` | Alpha, soft-edge, and glow-style shader controls. |
+| `dash` | `{ enabled, size, gap, phase, units }`; `units` is `"progress"` or `"world"`. |
+| `billboardMode` | `"none"` or `"object"` object-level billboarding. |
+| `depthTest`, `renderOrder` | Rendering order controls for overlay-style effects. |
 
-- `points`
-- `closed`
-- `segments`
-- `curveType`: `"catmullrom"` or `"polyline"`
-- `width`
-- `widthProfile`: `"constant"`, `"taper"`, `"calligraphy"`, or `"pulse"`
-- `color`, `colorStart`, `colorEnd`
-- `opacity`, `feather`, `glow`
-- `dash`: `{ enabled, size, gap, phase, units: "progress" }`
-- `billboardMode`: `"none"` or `"object"`
-- `depthTest`, `renderOrder`
+Progress dashes use normalized path progress, so `size: 0.1` means 10% of the sampled path. World
+dashes use local path distance, so `size: 0.2` means 0.2 scene units along the path.
 
-`dash` is progress-based. `size`, `gap`, and `phase` are normalized path progress units, not world
-units.
+```tsx
+<VectorPath3D
+  points={[
+    [-1, 0, 0],
+    [0, 0.6, 0.2],
+    [1, 0, 0],
+  ]}
+  width={0.12}
+  colorStart="#66ccff"
+  colorEnd="#f8ff7a"
+  dash={{ enabled: true, units: "world", size: 0.2, gap: 0.1 }}
+/>
+```
+
+```tsx
+<VectorPath3D
+  points={points}
+  width={0.18}
+  customWidthProfile={(t) => 0.25 + Math.sin(Math.PI * t)}
+/>
+```
 
 ### NeonCurve
 
 Convenience wrapper around `VectorPath3D`. It renders a bright inner curve and a wider additive glow
 layer.
 
+| Prop | Purpose |
+| --- | --- |
+| `points`, `closed`, `segments`, `curveType` | Path sampling controls. |
+| `color` | Core and glow color. |
+| `coreWidth`, `glowWidth` | Inner and outer ribbon widths. |
+| `intensity` | Glow strength and opacity scaling. |
+| `animated`, `pulseSpeed` | Optional shader pulse animation. |
+
+```tsx
+<NeonCurve points={points} color="#48f4d6" coreWidth={0.035} glowWidth={0.28} animated />
+```
+
 ### CalligraphyRibbon
 
 Variable-width brush stroke. Built CPU-side so `customPressure(t)` can affect sampled width before
 the geometry reaches the GPU.
+
+| Prop | Purpose |
+| --- | --- |
+| `points`, `closed`, `segments`, `curveType` | Path sampling controls. |
+| `color`, `width` | Stroke color and base width. |
+| `pressureProfile` | `"start-end-taper"`, `"middle-heavy"`, `"sinusoidal"`, or `"custom"`. |
+| `customPressure` | Width multiplier used when `pressureProfile` is `"custom"`. |
+
+```tsx
+<CalligraphyRibbon points={points} color="#fff3c4" width={0.22} pressureProfile="middle-heavy" />
+```
 
 ### MotionTrail
 
 Fading trail behind a moving object. Pass `targetRef` to sample an object's world position, or pass
 `points` to render a fixed trail.
 
+| Prop | Purpose |
+| --- | --- |
+| `targetRef` | Object whose world position is sampled over time. |
+| `points` | Fixed trail points; disables live target sampling. |
+| `maxPoints` | Maximum retained trail samples. |
+| `width`, `color`, `decay` | Trail shape and fade controls. |
+| `updateEvery` | Minimum seconds between live samples. |
+
+```tsx
+<MotionTrail targetRef={meshRef} color="#ff5c8a" width={0.1} maxPoints={96} decay={1.6} />
+```
+
 ### FeatheredPlane
 
 Rectangular panel with UV-based soft edges. Useful for 3D HUD panels and simple vector-like cards.
+
+| Prop | Purpose |
+| --- | --- |
+| `width`, `height` | Plane dimensions. |
+| `color`, `opacity` | Panel fill. |
+| `feather` | UV edge softness. |
+| `radius` | Simple rounded-corner mask radius. |
+| `depthTest` | Whether the panel participates in depth testing. |
+
+```tsx
+<FeatheredPlane width={4} height={1.6} color="#101826" opacity={0.7} feather={0.12} />
+```
+
+### TubePath3D
+
+Tube path renderer backed by the framework-independent `buildTubePathGeometry` helper.
+
+| Prop | Purpose |
+| --- | --- |
+| `points`, `closed`, `segments`, `curveType`, `epsilon` | Path sampling controls. |
+| `radius`, `radialSegments` | Tube shape controls. |
+| `color`, `opacity`, `depthTest` | Used by the default `MeshBasicMaterial`. |
+| `material` | Optional caller-owned material. It is not disposed by the component. |
+| `renderOrder` | Rendering order control. |
+
+```tsx
+<TubePath3D points={points} radius={0.04} radialSegments={10} color="#8cff9a" />
+```
+
+```tsx
+const material = React.useMemo(() => new THREE.MeshStandardMaterial({ color: "white" }), []);
+
+<TubePath3D points={points} radius={0.05} material={material} />;
+```
 
 ## Geometry API
 
@@ -141,7 +243,7 @@ const geometry = buildRibbonGeometry(points, {
   width: 0.12,
   segments: 64,
   widthProfile: "taper",
-  dash: { enabled: true, size: 0.12, gap: 0.08 },
+  dash: { enabled: true, units: "world", size: 0.2, gap: 0.1 },
 });
 ```
 
@@ -151,12 +253,22 @@ const geometry = buildRibbonGeometry(points, {
 - `normal`
 - `uv`
 - `pathProgress`
+- `pathDistance`
 - `side`
+- `width`
 - indexed triangles between neighboring samples
 
 It handles short point arrays, duplicate points, closed paths, and very small segments.
 Invalid coordinates are filtered before sampling, numeric options are normalized, and non-empty
 geometries compute bounding boxes and bounding spheres.
+
+| Helper | Purpose |
+| --- | --- |
+| `sampleCurve(points, options)` | Samples Catmull-Rom or polyline paths and returns points, tangents, progress, distances, and total length. |
+| `compactPoints(points, closed, epsilon)` | Converts inputs to vectors, removes invalid values, and drops near-duplicates. |
+| `buildStableFrames(tangents, options)` | Builds ribbon frames from sampled tangents. |
+| `buildRibbonGeometry(points, options)` | Builds two-vertex-per-sample ribbon geometry with progress and distance attributes. |
+| `buildTubePathGeometry(points, options)` | Builds a three.js `TubeGeometry` from the same path options. |
 
 ## Material API
 
@@ -170,13 +282,20 @@ const material = createFeatheredRibbonMaterial({
   colorEnd: "#f8ff7a",
   feather: 0.14,
   glow: 0.5,
-  dash: { enabled: true, size: 0.1, gap: 0.05 },
+  dash: { enabled: true, units: "progress", size: 0.1, gap: 0.05 },
 });
 ```
 
 Defaults are normalized: opacity is clamped to `0..1`, feather is clamped to `0..1`, glow is
 non-negative, invalid dash values fall back to safe progress-based defaults, and depth testing is
 enabled unless explicitly disabled.
+
+| Factory | Purpose |
+| --- | --- |
+| `createFeatheredRibbonMaterial(options)` | Soft-edged gradient/dashed ribbon `ShaderMaterial`. |
+| `updateMaterialUniforms(material, options)` | Updates an existing ribbon material without replacing it. |
+| `createGradientLineMaterial(options)` | Hard-edged gradient line material preset. |
+| `createNeonMaterial(options)` | Additive glow material preset. |
 
 ## Demo
 
@@ -215,7 +334,8 @@ promoted to the stable material API.
 - Pass stable `points` arrays when possible; React components rebuild geometry when the points array
   identity changes.
 - Higher `segments` values increase CPU geometry build cost and vertex count.
-- Dashes are progress-based rather than world-unit spacing.
+- Progress dashes are cheaper to reason about on normalized paths; world-unit dashes need valid
+  `pathDistance` attributes from the package geometry builders.
 - `billboardMode: "object"` rotates the whole mesh toward the camera; it is not per-segment
   screen-space billboarding.
 
@@ -223,7 +343,8 @@ promoted to the stable material API.
 
 - `billboardMode: "object"` rotates the whole mesh toward the camera. It is not per-segment
   screen-space billboarding.
-- Dashes are progress-based, not exact world-unit dash lengths.
+- World-unit dashes are based on sampled curve distance, so very low segment counts can make spacing
+  less precise on high-curvature paths.
 - Glow is an additive alpha falloff, not a postprocessing bloom pass.
 - Ribbon frames are stable for common curves but are not a full production-grade parallel transport
   implementation for every pathological 3D path.
@@ -231,8 +352,7 @@ promoted to the stable material API.
 
 ## Roadmap
 
-- World-unit dash spacing.
 - More robust frame transport for difficult closed 3D curves.
-- Tube and hybrid ribbon/tube components.
+- Hybrid ribbon/tube components.
 - Instanced trail and particle-assisted glow variants.
 - Promote the experimental TSL/WebGPU adapter once the WebGL API is stable.

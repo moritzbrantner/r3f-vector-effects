@@ -34,6 +34,8 @@ export function createTslRibbonMaterial(options: RibbonMaterialOptions = {}): TH
     blending: style.blending,
   });
   const progress = clamp(attribute("pathProgress", "float"), 0, 1);
+  const dashCoordinate =
+    style.dash.units === "world" ? attribute("pathDistance", "float") : progress;
   const edgeDistance = oneMinus(abs(sub(mul(uv().y, 2), 1)));
   const edgeAlpha = smoothstep(0, Math.max(style.feather, 0.0001), edgeDistance);
   const glowAlpha = mul(
@@ -41,7 +43,10 @@ export function createTslRibbonMaterial(options: RibbonMaterialOptions = {}): TH
     style.glow > 0 ? 0.75 : 0,
   );
   const dashAlpha = style.dash.enabled
-    ? step(mod(add(progress, style.dash.phase), style.dash.size + style.dash.gap), style.dash.size)
+    ? step(
+        mod(add(dashCoordinate, style.dash.phase), style.dash.size + style.dash.gap),
+        style.dash.size,
+      )
     : float(1);
 
   material.colorNode = mix(

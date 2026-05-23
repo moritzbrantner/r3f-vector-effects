@@ -3,6 +3,7 @@ import {
   FeatheredPlane,
   MotionTrail,
   NeonCurve,
+  TubePath3D,
   VectorPath3D,
 } from "@moritzbrantner/r3f-vector-effects";
 import { OrbitControls } from "@react-three/drei";
@@ -63,8 +64,11 @@ function Scene(): React.JSX.Element {
   const [feather, setFeather] = React.useState(0.12);
   const [glow, setGlow] = React.useState(0.55);
   const [dashed, setDashed] = React.useState(true);
+  const [dashUnits, setDashUnits] = React.useState<"progress" | "world">("progress");
   const [colorStart, setColorStart] = React.useState("#66ccff");
   const [colorEnd, setColorEnd] = React.useState("#f8ff7a");
+  const dashSize = dashUnits === "world" ? 0.42 : 0.12;
+  const dashGap = dashUnits === "world" ? 0.18 : 0.06;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -91,7 +95,7 @@ function Scene(): React.JSX.Element {
             colorEnd={colorEnd}
             feather={feather}
             glow={glow}
-            dash={{ enabled: dashed, size: 0.12, gap: 0.06 }}
+            dash={{ enabled: dashed, units: dashUnits, size: dashSize, gap: dashGap }}
             depthTest={false}
             renderOrder={5}
           />
@@ -114,6 +118,20 @@ function Scene(): React.JSX.Element {
             color="#fff3c4"
             width={0.22}
             pressureProfile="middle-heavy"
+          />
+          <TubePath3D
+            points={[
+              [-2.6, -1.45, -0.35],
+              [-1.2, -1.75, 0.3],
+              [0.4, -1.45, -0.15],
+              [2.4, -1.75, 0.25],
+            ]}
+            radius={0.035}
+            radialSegments={10}
+            color="#8cff9a"
+            opacity={0.85}
+            depthTest={false}
+            renderOrder={8}
           />
           <MovingTarget />
         </group>
@@ -166,6 +184,17 @@ function Scene(): React.JSX.Element {
             onChange={(event) => setDashed(event.target.checked)}
           />
           <span>Dashed</span>
+        </label>
+        <label className={controlLabelClass}>
+          <span>Dash Units</span>
+          <select
+            className="h-8 rounded-md border border-[#97bcff3d] bg-[#0d1420] px-2 text-[#eef5ff]"
+            value={dashUnits}
+            onChange={(event) => setDashUnits(event.target.value as "progress" | "world")}
+          >
+            <option value="progress">Progress</option>
+            <option value="world">World</option>
+          </select>
         </label>
         <label className={controlLabelClass}>
           <span>Start</span>

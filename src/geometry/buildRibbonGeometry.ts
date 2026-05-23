@@ -47,11 +47,13 @@ export function buildRibbonGeometry(
   const normals = new Float32Array(vertexCount * 3);
   const uvs = new Float32Array(vertexCount * 2);
   const pathProgress = new Float32Array(vertexCount);
+  const pathDistance = new Float32Array(vertexCount);
   const sideAttribute = new Float32Array(vertexCount);
   const widthAttribute = new Float32Array(vertexCount);
 
   for (let i = 0; i < sampled.points.length; i += 1) {
     const t = sampled.progress[i];
+    const distance = sampled.distances[i];
     const width = style.width * widthMultiplier(t, style.widthProfile, style.widthCallback);
     const halfWidth = width / 2;
     const point = sampled.points[i];
@@ -65,10 +67,12 @@ export function buildRibbonGeometry(
       normal: frame.normal,
       halfWidth,
       progress: t,
+      distance,
       positions,
       normals,
       uvs,
       pathProgress,
+      pathDistance,
       sideAttribute,
       widthAttribute,
     });
@@ -81,10 +85,12 @@ export function buildRibbonGeometry(
       normal: frame.normal,
       halfWidth,
       progress: t,
+      distance,
       positions,
       normals,
       uvs,
       pathProgress,
+      pathDistance,
       sideAttribute,
       widthAttribute,
     });
@@ -105,6 +111,7 @@ export function buildRibbonGeometry(
   geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
   geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
   geometry.setAttribute("pathProgress", new THREE.BufferAttribute(pathProgress, 1));
+  geometry.setAttribute("pathDistance", new THREE.BufferAttribute(pathDistance, 1));
   geometry.setAttribute("side", new THREE.BufferAttribute(sideAttribute, 1));
   geometry.setAttribute("width", new THREE.BufferAttribute(widthAttribute, 1));
   geometry.setIndex(indices);
@@ -119,6 +126,7 @@ function setEmptyRibbonAttributes(geometry: THREE.BufferGeometry): void {
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute([], 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute([], 2));
   geometry.setAttribute("pathProgress", new THREE.Float32BufferAttribute([], 1));
+  geometry.setAttribute("pathDistance", new THREE.Float32BufferAttribute([], 1));
   geometry.setAttribute("side", new THREE.Float32BufferAttribute([], 1));
   geometry.setAttribute("width", new THREE.Float32BufferAttribute([], 1));
 }
@@ -153,10 +161,12 @@ interface WriteVertexOptions {
   normal: THREE.Vector3;
   halfWidth: number;
   progress: number;
+  distance: number;
   positions: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
   pathProgress: Float32Array;
+  pathDistance: Float32Array;
   sideAttribute: Float32Array;
   widthAttribute: Float32Array;
 }
@@ -178,6 +188,7 @@ function writeVertex(options: WriteVertexOptions): void {
   options.uvs[uvOffset + 1] = options.sideSign < 0 ? 0 : 1;
 
   options.pathProgress[options.index] = options.progress;
+  options.pathDistance[options.index] = options.distance;
   options.sideAttribute[options.index] = options.sideSign;
   options.widthAttribute[options.index] = options.halfWidth * 2;
 }

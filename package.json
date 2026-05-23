@@ -1,6 +1,6 @@
 {
   "name": "@moritzbrantner/r3f-vector-effects",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React Three Fiber components for vector-like 3D paths, ribbons, trails, glows, dashes, and feathered panels.",
   "type": "module",
   "packageManager": "bun@1.3.14",
@@ -54,7 +54,7 @@
       "require": "./dist/experimental/tsl.cjs"
     }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },
@@ -73,7 +73,8 @@
     "demo": "bun run example:dev",
     "benchmark": "bun --cwd examples/benchmark dev",
     "benchmark:build": "bun --cwd examples/benchmark build",
-    "pack:check": "bun run check && bun run example:build && bun run benchmark:build && npm pack --dry-run"
+    "pack:smoke": "node scripts/pack-smoke.mjs",
+    "pack:check": "bun run check && bun run example:build && bun run benchmark:build && bun run pack:smoke && npm pack --dry-run"
   },
   "peerDependencies": {
     "@react-three/fiber": "^8.0.0 || ^9.0.0",

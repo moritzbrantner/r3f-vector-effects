@@ -25,7 +25,7 @@ export interface DashStyle {
   size?: number;
   gap?: number;
   phase?: number;
-  units?: "progress";
+  units?: "progress" | "world";
 }
 
 export interface RibbonStyle {
@@ -122,4 +122,15 @@ export interface FeatheredPlaneProps {
   feather?: number;
   radius?: number;
   depthTest?: boolean;
+}
+
+export interface TubePath3DProps extends PathSamplingOptions {
+  points: readonly VectorEffectPoint[];
+  radius?: number;
+  radialSegments?: number;
+  color?: THREE.ColorRepresentation;
+  opacity?: number;
+  depthTest?: boolean;
+  renderOrder?: number;
+  material?: THREE.Material;
 }

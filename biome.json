@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
-    "ignore": ["dist", "examples/vite-r3f-demo/dist"]
+    "ignore": ["dist", ".pack-smoke", "examples/vite-r3f-demo/dist", "examples/benchmark/dist"]
   },
   "formatter": {
     "enabled": true,

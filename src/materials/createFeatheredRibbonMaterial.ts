@@ -18,6 +18,7 @@ interface NormalizedFeatheredRibbonMaterialOptions {
   dashSize: number;
   gapSize: number;
   dashPhase: number;
+  dashUnits: "progress" | "world";
   alphaTest: number;
   depthTest: boolean;
   depthWrite: boolean;
@@ -50,6 +51,7 @@ export function createFeatheredRibbonMaterial(
       dashSize: { value: style.dashSize },
       gapSize: { value: style.gapSize },
       dashPhase: { value: style.dashPhase },
+      dashUnits: { value: style.dashUnits === "world" ? 1 : 0 },
       alphaTest: { value: style.alphaTest },
       fade: { value: style.fade },
       time: { value: 0 },
@@ -76,6 +78,7 @@ export function updateMaterialUniforms(
   material.uniforms.dashSize.value = style.dashSize;
   material.uniforms.gapSize.value = style.gapSize;
   material.uniforms.dashPhase.value = style.dashPhase;
+  material.uniforms.dashUnits.value = style.dashUnits === "world" ? 1 : 0;
   material.uniforms.alphaTest.value = style.alphaTest;
   material.uniforms.fade.value = style.fade;
   material.uniforms.animated.value = style.animated ? 1 : 0;
@@ -95,8 +98,10 @@ function normalizeFeatheredRibbonMaterialOptions(
   options: FeatheredRibbonMaterialOptions,
 ): NormalizedFeatheredRibbonMaterialOptions {
   const color = options.color ?? "#ffffff";
-  const dashSize = normalizedProgressLength(options.dashSize ?? options.dash?.size, 0.12);
-  const gapSize = normalizedProgressLength(options.gapSize ?? options.dash?.gap, 0.08);
+  const dashUnits = options.dash?.units === "world" ? "world" : "progress";
+  const normalizeDashLength = dashUnits === "world" ? positiveOrFallback : normalizedProgressLength;
+  const dashSize = normalizeDashLength(options.dashSize ?? options.dash?.size, 0.12);
+  const gapSize = normalizeDashLength(options.gapSize ?? options.dash?.gap, 0.08);
 
   return {
     colorStart: cloneColor(options.colorStart ?? color),
@@ -108,6 +113,7 @@ function normalizeFeatheredRibbonMaterialOptions(
     dashSize,
     gapSize,
     dashPhase: finiteOrFallback(options.dashPhase ?? options.dash?.phase, 0),
+    dashUnits,
     alphaTest: clampFinite(options.alphaTest, 0.001, 0, 1),
     depthTest: options.depthTest ?? true,
     depthWrite: options.depthWrite ?? false,

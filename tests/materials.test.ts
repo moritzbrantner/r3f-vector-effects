@@ -24,12 +24,14 @@ describe("materials", () => {
     expect(material.uniforms.opacity).toBeDefined();
     expect(material.uniforms.glow).toBeDefined();
     expect(material.uniforms.gapSize).toBeDefined();
+    expect(material.uniforms.dashUnits).toBeDefined();
     expect(material.uniforms.alphaTest).toBeDefined();
     expect(material.uniforms.dashed.value).toBe(1);
     expect(material.uniforms.feather.value).toBe(0.2);
     expect(material.uniforms.dashSize.value).toBe(0.12);
     expect(material.uniforms.gapSize.value).toBe(0.08);
     expect(material.uniforms.dashPhase.value).toBe(0);
+    expect(material.uniforms.dashUnits.value).toBe(0);
     expect(material.uniforms.time.value).toBe(0);
   });
 
@@ -90,6 +92,33 @@ describe("materials", () => {
     expect(material.uniforms.dashPhase.value).toBe(0);
   });
 
+  it("supports world-unit dashes without clamping dash length to normalized progress", () => {
+    const material = createFeatheredRibbonMaterial({
+      dash: { enabled: true, units: "world", size: 4, gap: 2, phase: 0.5 },
+    });
+
+    expect(material.uniforms.dashed.value).toBe(1);
+    expect(material.uniforms.dashUnits.value).toBe(1);
+    expect(material.uniforms.dashSize.value).toBe(4);
+    expect(material.uniforms.gapSize.value).toBe(2);
+    expect(material.uniforms.dashPhase.value).toBe(0.5);
+  });
+
+  it("normalizes invalid dash units back to progress units", () => {
+    const material = createFeatheredRibbonMaterial({
+      dash: {
+        enabled: true,
+        units: "screen" as unknown as "progress",
+        size: 10,
+        gap: 2,
+      },
+    });
+
+    expect(material.uniforms.dashUnits.value).toBe(0);
+    expect(material.uniforms.dashSize.value).toBe(1);
+    expect(material.uniforms.gapSize.value).toBe(1);
+  });
+
   it("updates material uniforms and flags without replacing the material", () => {
     const material = createFeatheredRibbonMaterial({ color: "white" });
     const sameMaterial = updateMaterialUniforms(material, {
@@ -101,6 +130,7 @@ describe("materials", () => {
       dashed: true,
       dashSize: 0.3,
       gapSize: 0.1,
+      dash: { units: "world" },
       depthTest: false,
       depthWrite: true,
       transparent: false,
@@ -115,6 +145,7 @@ describe("materials", () => {
     expect(material.uniforms.dashed.value).toBe(1);
     expect(material.uniforms.dashSize.value).toBe(0.3);
     expect(material.uniforms.gapSize.value).toBe(0.1);
+    expect(material.uniforms.dashUnits.value).toBe(1);
     expect(material.depthTest).toBe(false);
     expect(material.depthWrite).toBe(true);
     expect(material.transparent).toBe(false);

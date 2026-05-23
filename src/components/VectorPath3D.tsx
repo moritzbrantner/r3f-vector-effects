@@ -9,6 +9,19 @@ import {
 } from "../materials/createFeatheredRibbonMaterial";
 import type { VectorPath3DProps } from "../types";
 
+type VectorPathGeometryProps = Pick<
+  VectorPath3DProps,
+  | "points"
+  | "closed"
+  | "segments"
+  | "curveType"
+  | "width"
+  | "widthProfile"
+  | "widthCallback"
+  | "customWidthProfile"
+  | "dash"
+>;
+
 interface InternalVectorPath3DProps extends VectorPath3DProps {
   fade?: number;
   animated?: boolean;
@@ -25,6 +38,8 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
       curveType = "catmull-rom",
       width = 0.1,
       widthProfile = "constant",
+      widthCallback,
+      customWidthProfile,
       color = "#ffffff",
       colorStart,
       colorEnd,
@@ -47,10 +62,28 @@ export const InternalVectorPath3D = React.forwardRef<THREE.Mesh, InternalVectorP
     React.useImperativeHandle(forwardedRef, () => meshRef.current as THREE.Mesh);
 
     const geometry = React.useMemo(() => {
-      const sampling = normalizeSamplingOptions({ closed, segments, curveType });
-      const style = normalizeRibbonStyle({ width, widthProfile, dash });
-      return buildRibbonGeometry(points, { ...sampling, ...style });
-    }, [points, closed, segments, curveType, width, widthProfile, dash]);
+      return createVectorPathGeometry({
+        points,
+        closed,
+        segments,
+        curveType,
+        width,
+        widthProfile,
+        widthCallback,
+        customWidthProfile,
+        dash,
+      });
+    }, [
+      points,
+      closed,
+      segments,
+      curveType,
+      width,
+      widthProfile,
+      widthCallback,
+      customWidthProfile,
+      dash,
+    ]);
 
     const material = React.useMemo(() => createFeatheredRibbonMaterial(), []);
 
@@ -116,3 +149,25 @@ export const VectorPath3D = React.forwardRef<THREE.Mesh, VectorPath3DProps>(
     return <InternalVectorPath3D {...props} ref={forwardedRef} />;
   },
 );
+
+export function createVectorPathGeometry({
+  points,
+  closed,
+  segments,
+  curveType,
+  width,
+  widthProfile,
+  widthCallback,
+  customWidthProfile,
+  dash,
+}: VectorPathGeometryProps): THREE.BufferGeometry {
+  const sampling = normalizeSamplingOptions({ closed, segments, curveType });
+  const style = normalizeRibbonStyle({
+    width,
+    widthProfile,
+    widthCallback,
+    customWidthProfile,
+    dash,
+  });
+  return buildRibbonGeometry(points, { ...sampling, ...style });
+}

@@ -13,6 +13,7 @@ import type {
   NeonCurveProps,
   PathSamplingOptions,
   RibbonMaterialOptions,
+  TubePath3DProps,
   VectorPath3DProps,
 } from "../src/index";
 import * as materialsApi from "../src/materials";
@@ -25,6 +26,7 @@ describe("public API", () => {
       "FeatheredPlane",
       "MotionTrail",
       "NeonCurve",
+      "TubePath3D",
       "VectorPath3D",
       "buildRibbonGeometry",
       "buildStableFrames",
@@ -40,7 +42,7 @@ describe("public API", () => {
   });
 
   it("keeps public prop and option types importable from the root", () => {
-    const dash: DashStyle = { enabled: true, size: 0.2, gap: 0.1 };
+    const dash: DashStyle = { enabled: true, units: "world", size: 0.2, gap: 0.1 };
     const sampling: PathSamplingOptions = { segments: 8, curveType: "catmull-rom", epsilon: 1e-5 };
     const vectorPathProps: VectorPath3DProps = {
       points: [
@@ -54,6 +56,7 @@ describe("public API", () => {
     const calligraphyProps: CalligraphyRibbonProps = { points: vectorPathProps.points };
     const motionTrailProps: MotionTrailProps = { points: vectorPathProps.points };
     const featheredPlaneProps: FeatheredPlaneProps = { width: 1, height: 1 };
+    const tubePathProps: TubePath3DProps = { points: vectorPathProps.points, radius: 0.05 };
     const ribbonOptions: BuildRibbonGeometryOptions = {
       width: 0.1,
       customWidthProfile: (t) => t,
@@ -79,6 +82,7 @@ describe("public API", () => {
       calligraphyProps,
       motionTrailProps,
       featheredPlaneProps,
+      tubePathProps,
       ribbonOptions,
       frameOptions,
       tubeOptions,
@@ -93,6 +97,7 @@ describe("public API", () => {
       "FeatheredPlane",
       "MotionTrail",
       "NeonCurve",
+      "TubePath3D",
       "VectorPath3D",
     ]);
     expect(Object.keys(geometryApi).sort()).toEqual([

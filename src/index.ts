@@ -1,4 +1,11 @@
-export { CalligraphyRibbon, FeatheredPlane, MotionTrail, NeonCurve, VectorPath3D } from "./react";
+export {
+  CalligraphyRibbon,
+  FeatheredPlane,
+  MotionTrail,
+  NeonCurve,
+  TubePath3D,
+  VectorPath3D,
+} from "./react";
 
 export {
   buildRibbonGeometry,
@@ -28,6 +35,7 @@ export type {
   PathSamplingOptions,
   PressureProfile,
   RibbonStyle,
+  TubePath3DProps,
   VectorEffectPoint,
   VectorPath3DProps,
   WidthProfile,

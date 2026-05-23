@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
+import { createVectorPathGeometry } from "../src/components/VectorPath3D";
 import { buildRibbonGeometry } from "../src/geometry/buildRibbonGeometry";
 import { buildStableFrames } from "../src/geometry/frames";
 
@@ -35,6 +36,7 @@ describe("buildRibbonGeometry", () => {
     expect(geometry.getAttribute("normal").count).toBe(10);
     expect(geometry.getAttribute("uv").count).toBe(10);
     expect(geometry.getAttribute("pathProgress").count).toBe(10);
+    expect(geometry.getAttribute("pathDistance").count).toBe(10);
     expect(geometry.getAttribute("side").count).toBe(10);
     expect(geometry.getAttribute("width").count).toBe(10);
     expect(geometry.getIndex()?.count).toBe(24);
@@ -68,6 +70,7 @@ describe("buildRibbonGeometry", () => {
 
     const uv = numericArray(geometry.getAttribute("uv") as THREE.BufferAttribute);
     const progress = numericArray(geometry.getAttribute("pathProgress") as THREE.BufferAttribute);
+    const distance = numericArray(geometry.getAttribute("pathDistance") as THREE.BufferAttribute);
     const uvX = uv.filter((_, index) => index % 2 === 0);
 
     for (const value of uvX) {
@@ -79,6 +82,45 @@ describe("buildRibbonGeometry", () => {
       expect(value).toBeGreaterThanOrEqual(0);
       expect(value).toBeLessThanOrEqual(1);
     }
+
+    expect(distance.every(Number.isFinite)).toBe(true);
+  });
+
+  it("writes finite monotonic pathDistance values for open paths", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 2, 0],
+      ],
+      { segments: 6, curveType: "polyline" },
+    );
+
+    const distancePairs = numericArray(
+      geometry.getAttribute("pathDistance") as THREE.BufferAttribute,
+    );
+    const distances = distancePairs.filter((_, index) => index % 2 === 0);
+
+    expect(distances[0]).toBe(0);
+    expect(distances[distances.length - 1]).toBeCloseTo(3);
+    for (let index = 1; index < distances.length; index += 1) {
+      expect(distances[index]).toBeGreaterThanOrEqual(distances[index - 1]);
+    }
+  });
+
+  it("writes finite pathDistance values for closed paths", () => {
+    const geometry = buildRibbonGeometry(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+      ],
+      { segments: 9, closed: true, curveType: "polyline" },
+    );
+
+    const distances = numericArray(geometry.getAttribute("pathDistance") as THREE.BufferAttribute);
+    expect(distances.every(Number.isFinite)).toBe(true);
+    expect(Math.max(...distances)).toBeGreaterThan(0);
   });
 
   it("writes side values as only -1 and +1", () => {
@@ -187,6 +229,24 @@ describe("buildRibbonGeometry", () => {
         customWidthProfile: (t) => 0.5 + t,
       },
     );
+
+    const widths = numericArray(geometry.getAttribute("width") as THREE.BufferAttribute);
+    expect(widths[0]).toBeCloseTo(0.25);
+    expect(widths[widths.length - 1]).toBeCloseTo(0.75);
+  });
+
+  it("lets VectorPath3D geometry use customWidthProfile ahead of widthCallback", () => {
+    const geometry = createVectorPathGeometry({
+      points: [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      segments: 4,
+      curveType: "polyline",
+      width: 0.5,
+      widthCallback: () => 2,
+      customWidthProfile: (t) => 0.5 + t,
+    });
 
     const widths = numericArray(geometry.getAttribute("width") as THREE.BufferAttribute);
     expect(widths[0]).toBeCloseTo(0.25);

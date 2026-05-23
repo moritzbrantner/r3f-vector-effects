@@ -21,7 +21,7 @@ export interface NormalizedDashStyle {
   size: number;
   gap: number;
   phase: number;
-  units: "progress";
+  units: "progress" | "world";
 }
 
 export interface NormalizedRibbonStyle {
@@ -67,7 +67,7 @@ export function normalizeDashStyle(dash?: DashStyle): NormalizedDashStyle {
     size: safePositive(dash?.size, 0.12),
     gap: safePositive(dash?.gap, 0.08),
     phase: isFiniteNumber(dash?.phase ?? 0) ? (dash?.phase ?? 0) : 0,
-    units: "progress",
+    units: dash?.units === "world" ? "world" : "progress",
   };
 }
 
