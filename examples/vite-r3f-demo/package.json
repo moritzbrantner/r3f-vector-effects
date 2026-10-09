@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@moritzbrantner/r3f-vector-effects": "file:../..",
-    "@react-three/drei": "^9.122.0",
+    "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^8.17.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
