@@ -1,9 +1,9 @@
-export { VectorPath3D } from "./components/VectorPath3D";
-export { NeonCurve } from "./components/NeonCurve";
 export { CalligraphyRibbon } from "./components/CalligraphyRibbon";
-export { MotionTrail } from "./components/MotionTrail";
 export { FeatheredPlane } from "./components/FeatheredPlane";
+export { MotionTrail } from "./components/MotionTrail";
+export { NeonCurve } from "./components/NeonCurve";
 export { TubePath3D } from "./components/TubePath3D";
+export { VectorPath3D } from "./components/VectorPath3D";
 
 export type {
   CalligraphyRibbonProps,

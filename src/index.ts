@@ -1,11 +1,9 @@
-export {
-  CalligraphyRibbon,
-  FeatheredPlane,
-  MotionTrail,
-  NeonCurve,
-  TubePath3D,
-  VectorPath3D,
-} from "./react";
+export type {
+  BuildRibbonGeometryOptions,
+  BuildStableFramesOptions,
+  BuildTubePathGeometryOptions,
+  RibbonFrame,
+} from "./geometry";
 
 export {
   buildRibbonGeometry,
@@ -15,21 +13,28 @@ export {
   sampleCurve,
   toVector3Array,
 } from "./geometry";
-
+export type { RibbonMaterialOptions } from "./materials";
 export {
   createFeatheredRibbonMaterial,
   createGradientLineMaterial,
   createNeonMaterial,
   updateMaterialUniforms,
 } from "./materials";
-
+export {
+  CalligraphyRibbon,
+  FeatheredPlane,
+  MotionTrail,
+  NeonCurve,
+  TubePath3D,
+  VectorPath3D,
+} from "./react";
 export type {
   BillboardMode,
   CalligraphyRibbonProps,
   CurveType,
   DashStyle,
-  FeatheredRibbonMaterialOptions,
   FeatheredPlaneProps,
+  FeatheredRibbonMaterialOptions,
   MotionTrailProps,
   NeonCurveProps,
   PathSamplingOptions,
@@ -40,10 +45,3 @@ export type {
   VectorPath3DProps,
   WidthProfile,
 } from "./types";
-export type {
-  BuildRibbonGeometryOptions,
-  BuildStableFramesOptions,
-  BuildTubePathGeometryOptions,
-  RibbonFrame,
-} from "./geometry";
-export type { RibbonMaterialOptions } from "./materials";

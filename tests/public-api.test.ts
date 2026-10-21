@@ -2,7 +2,6 @@ import * as React from "react";
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import * as geometryApi from "../src/geometry";
-import * as publicApi from "../src/index";
 import type {
   BuildRibbonGeometryOptions,
   BuildStableFramesOptions,
@@ -18,6 +17,7 @@ import type {
   TubePath3DProps,
   VectorPath3DProps,
 } from "../src/index";
+import * as publicApi from "../src/index";
 import * as materialsApi from "../src/materials";
 import * as reactApi from "../src/react";
 

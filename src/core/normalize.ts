@@ -7,7 +7,7 @@ import type {
   RibbonStyle,
   WidthProfile,
 } from "../types";
-import { EPSILON, clamp, isFiniteNumber, safePositive } from "../utils/math";
+import { clamp, EPSILON, isFiniteNumber, safePositive } from "../utils/math";
 
 export interface NormalizedSamplingOptions {
   closed: boolean;

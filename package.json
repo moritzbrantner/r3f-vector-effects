@@ -54,11 +54,18 @@
       "require": "./dist/experimental/tsl.cjs"
     }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public"
   },
-  "workspaces": ["examples/*"],
+  "workspaces": [
+    "examples/*"
+  ],
   "scripts": {
     "build": "tsup",
     "check": "bun run lint && bun run typecheck && bun run test && bun run build",
@@ -83,7 +90,7 @@
     "three": ">=0.160.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.0",
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.0.0",
     "@tailwindcss/vite": "^4.3.0",
