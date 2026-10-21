@@ -1,2 +1,2 @@
-export { createTslRibbonMaterial } from "../materials/createTslRibbonMaterial";
 export type { RibbonMaterialOptions } from "../materials/createFeatheredRibbonMaterial";
+export { createTslRibbonMaterial } from "../materials/createTslRibbonMaterial";

@@ -1,7 +1,13 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "files": {
-    "ignore": ["dist", ".pack-smoke", "examples/vite-r3f-demo/dist", "examples/benchmark/dist"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/.pack-smoke",
+      "!**/examples/vite-r3f-demo/dist",
+      "!**/examples/benchmark/dist"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -9,13 +15,11 @@
     "indentWidth": 2,
     "lineWidth": 100
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "preset": "recommended"
     }
   }
 }

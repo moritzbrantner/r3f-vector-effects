@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 import {
-  type RibbonMaterialOptions,
   createFeatheredRibbonMaterial,
+  type RibbonMaterialOptions,
 } from "./createFeatheredRibbonMaterial";
 
 export function createGradientLineMaterial(

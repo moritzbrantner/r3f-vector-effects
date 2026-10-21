@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
-  type RibbonMaterialOptions,
   createFeatheredRibbonMaterial,
+  type RibbonMaterialOptions,
 } from "./createFeatheredRibbonMaterial";
 
 export function createNeonMaterial(options: RibbonMaterialOptions = {}): THREE.ShaderMaterial {

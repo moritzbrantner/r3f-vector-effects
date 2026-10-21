@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { normalizeSamplingOptions } from "../core/normalize";
 import type { PathSamplingOptions, VectorEffectPoint } from "../types";
-import { EPSILON, clamp } from "../utils/math";
+import { clamp, EPSILON } from "../utils/math";
 
 export type SampleCurveOptions = PathSamplingOptions;
 

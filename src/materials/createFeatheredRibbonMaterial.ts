@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { FeatheredRibbonMaterialOptions as BaseFeatheredRibbonMaterialOptions } from "../types";
 import { cloneColor } from "../utils/color";
-import { EPSILON, clamp, isFiniteNumber } from "../utils/math";
+import { clamp, EPSILON, isFiniteNumber } from "../utils/math";
 import { ribbonFragmentShader } from "./shaders/ribbonFragment.glsl";
 import { ribbonVertexShader } from "./shaders/ribbonVertex.glsl";
 
