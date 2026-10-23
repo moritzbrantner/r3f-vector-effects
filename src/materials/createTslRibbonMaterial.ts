@@ -50,8 +50,8 @@ export function createTslRibbonMaterial(options: RibbonMaterialOptions = {}): TH
     : float(1);
 
   material.colorNode = mix(
-    color(style.colorStart ?? style.color),
-    color(style.colorEnd ?? style.color),
+    color(new THREE.Color(style.colorStart ?? style.color)),
+    color(new THREE.Color(style.colorEnd ?? style.color)),
     progress,
   );
   material.opacityNode = mul(max(edgeAlpha, glowAlpha), dashAlpha, style.opacity);
