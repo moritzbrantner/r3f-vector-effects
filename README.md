@@ -23,7 +23,6 @@ bun add @moritzbrantner/r3f-vector-effects three react react-dom @react-three/fi
 ```
 
 Peer dependencies:
-
 - `react`
 - `react-dom`
 - `three`
@@ -107,20 +106,20 @@ it is promoted to the stable material API.
 General-purpose 3D path renderer. It samples points as a Catmull-Rom curve by default, builds a
 ribbon mesh, and adds UVs where `u` is path progress and `v` is the cross-path coordinate.
 
-| Prop | Purpose |
-| --- | --- |
-| `points` | Path points as `[x, y, z]` tuples or `THREE.Vector3` values. |
-| `closed`, `segments`, `curveType` | Sampling controls. `curveType` accepts `"catmull-rom"`, `"catmullrom"`, or `"polyline"`. |
-| `width`, `widthProfile` | Base width and built-in width profile: `"constant"`, `"taper"`, `"calligraphy"`, or `"pulse"`. |
-| `customWidthProfile`, `widthCallback` | Custom width multipliers sampled from normalized progress. `customWidthProfile` wins if both are provided. |
-| `color`, `colorStart`, `colorEnd` | Solid color or path-progress gradient. |
-| `opacity`, `feather`, `glow` | Alpha, soft-edge, and glow-style shader controls. |
-| `dash` | `{ enabled, size, gap, phase, units }`; `units` is `"progress"` or `"world"`. |
-| `billboardMode` | `"none"` or `"object"` object-level billboarding. |
-| `depthTest`, `depthWrite`, `renderOrder` | Depth and rendering order controls for overlay-style effects. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the mesh. |
-| `onPointerOver`, `onPointerOut`, `onClick` | Pointer handlers forwarded to the mesh. |
+| Prop                                           | Purpose                                                                                                    |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `points`                                       | Path points as `[x, y, z]` tuples or `THREE.Vector3` values.                                               |
+| `closed`, `segments`, `curveType`              | Sampling controls. `curveType` accepts `"catmull-rom"`, `"catmullrom"`, or `"polyline"`.                   |
+| `width`, `widthProfile`                        | Base width and built-in width profile: `"constant"`, `"taper"`, `"calligraphy"`, or `"pulse"`.             |
+| `customWidthProfile`, `widthCallback`          | Custom width multipliers sampled from normalized progress. `customWidthProfile` wins if both are provided. |
+| `color`, `colorStart`, `colorEnd`              | Solid color or path-progress gradient.                                                                     |
+| `opacity`, `feather`, `glow`                   | Alpha, soft-edge, and glow-style shader controls.                                                          |
+| `dash`                                         | `{ enabled, size, gap, phase, units }`; `units` is `"progress"` or `"world"`.                              |
+| `billboardMode`                                | `"none"` or `"object"` object-level billboarding.                                                          |
+| `depthTest`, `depthWrite`, `renderOrder`       | Depth and rendering order controls for overlay-style effects.                                              |
+| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh.                                                        |
+| `position`, `rotation`, `scale`                | React Three Fiber-compatible transform props forwarded to the mesh.                                        |
+| `onPointerOver`, `onPointerOut`, `onClick`     | Pointer handlers forwarded to the mesh.                                                                    |
 
 Progress dashes use normalized path progress, so `size: 0.1` means 10% of the sampled path. World
 dashes use local path distance, so `size: 0.2` means 0.2 scene units along the path.
@@ -136,7 +135,7 @@ dashes use local path distance, so `size: 0.2` means 0.2 scene units along the p
   colorStart="#66ccff"
   colorEnd="#f8ff7a"
   dash={{ enabled: true, units: "world", size: 0.2, gap: 0.1 }}
-/>
+/>;
 ```
 
 ```tsx
@@ -144,7 +143,7 @@ dashes use local path distance, so `size: 0.2` means 0.2 scene units along the p
   points={points}
   width={0.18}
   customWidthProfile={(t) => 0.25 + Math.sin(Math.PI * t)}
-/>
+/>;
 ```
 
 ### NeonCurve
@@ -152,21 +151,21 @@ dashes use local path distance, so `size: 0.2` means 0.2 scene units along the p
 Convenience wrapper around `VectorPath3D`. It renders a bright inner curve and a wider additive glow
 layer.
 
-| Prop | Purpose |
-| --- | --- |
-| `points`, `closed`, `segments`, `curveType` | Path sampling controls. |
-| `color`, `coreColor`, `glowColor` | Shared color, or separate core and glow colors. |
-| `coreWidth`, `glowWidth` | Inner and outer ribbon widths. |
-| `intensity` | Glow strength and opacity scaling. |
-| `opacity`, `glowOpacity` | Override intensity-derived core and glow opacity. |
-| `dashed`, `dashSize`, `gapSize`, `dashPhase`, `dashUnits` | Dashed rendering controls for both layers. |
-| `depthTest`, `renderOrder` | Depth testing and base render order. The core layer renders one step above the glow layer. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the wrapper group. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the wrapper group. |
-| `animated`, `pulseSpeed` | Optional shader pulse animation. |
+| Prop                                                      | Purpose                                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `points`, `closed`, `segments`, `curveType`               | Path sampling controls.                                                                    |
+| `color`, `coreColor`, `glowColor`                         | Shared color, or separate core and glow colors.                                            |
+| `coreWidth`, `glowWidth`                                  | Inner and outer ribbon widths.                                                             |
+| `intensity`                                               | Glow strength and opacity scaling.                                                         |
+| `opacity`, `glowOpacity`                                  | Override intensity-derived core and glow opacity.                                          |
+| `dashed`, `dashSize`, `gapSize`, `dashPhase`, `dashUnits` | Dashed rendering controls for both layers.                                                 |
+| `depthTest`, `renderOrder`                                | Depth testing and base render order. The core layer renders one step above the glow layer. |
+| `frustumCulled`, `visible`, `name`, `userData`            | Common three.js object props forwarded to the wrapper group.                               |
+| `position`, `rotation`, `scale`                           | React Three Fiber-compatible transform props forwarded to the wrapper group.               |
+| `animated`, `pulseSpeed`                                  | Optional shader pulse animation.                                                           |
 
 ```tsx
-<NeonCurve points={points} color="#48f4d6" coreWidth={0.035} glowWidth={0.28} animated />
+<NeonCurve points={points} color="#48f4d6" coreWidth={0.035} glowWidth={0.28} animated />;
 ```
 
 ### CalligraphyRibbon
@@ -174,21 +173,21 @@ layer.
 Variable-width brush stroke. Built CPU-side so `customPressure(t)` can affect sampled width before
 the geometry reaches the GPU.
 
-| Prop | Purpose |
-| --- | --- |
-| `points`, `closed`, `segments`, `curveType` | Path sampling controls. |
-| `color`, `colorStart`, `colorEnd`, `width` | Solid stroke color, optional gradient colors, and base width. |
-| `opacity`, `feather`, `glow`, `dash` | Shared ribbon material controls. |
-| `pressureProfile` | `"start-end-taper"`, `"middle-heavy"`, `"sinusoidal"`, or `"custom"`. |
-| `customPressure` | Width multiplier used when `pressureProfile` is `"custom"`. |
-| `billboardMode` | `"none"` or `"object"` object-level billboarding. |
-| `depthTest`, `renderOrder` | Depth testing and mesh render order. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the mesh. |
-| `onPointerOver`, `onPointerOut`, `onClick` | Pointer handlers forwarded to the mesh. |
+| Prop                                           | Purpose                                                               |
+| ---------------------------------------------- | --------------------------------------------------------------------- |
+| `points`, `closed`, `segments`, `curveType`    | Path sampling controls.                                               |
+| `color`, `colorStart`, `colorEnd`, `width`     | Solid stroke color, optional gradient colors, and base width.         |
+| `opacity`, `feather`, `glow`, `dash`           | Shared ribbon material controls.                                      |
+| `pressureProfile`                              | `"start-end-taper"`, `"middle-heavy"`, `"sinusoidal"`, or `"custom"`. |
+| `customPressure`                               | Width multiplier used when `pressureProfile` is `"custom"`.           |
+| `billboardMode`                                | `"none"` or `"object"` object-level billboarding.                     |
+| `depthTest`, `renderOrder`                     | Depth testing and mesh render order.                                  |
+| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh.                   |
+| `position`, `rotation`, `scale`                | React Three Fiber-compatible transform props forwarded to the mesh.   |
+| `onPointerOver`, `onPointerOut`, `onClick`     | Pointer handlers forwarded to the mesh.                               |
 
 ```tsx
-<CalligraphyRibbon points={points} color="#fff3c4" width={0.22} pressureProfile="middle-heavy" />
+<CalligraphyRibbon points={points} color="#fff3c4" width={0.22} pressureProfile="middle-heavy" />;
 ```
 
 ### MotionTrail
@@ -196,62 +195,62 @@ the geometry reaches the GPU.
 Fading trail behind a moving object. Pass `targetRef` to sample an object's world position, or pass
 `points` to render a fixed trail.
 
-| Prop | Purpose |
-| --- | --- |
-| `targetRef` | Object whose world position is sampled over time. |
-| `points` | Fixed trail points; disables live target sampling. |
-| `maxPoints` | Maximum retained trail samples. |
-| `width`, `color`, `colorStart`, `colorEnd` | Trail width, solid color, and optional gradient colors. |
-| `opacity`, `feather`, `glow`, `decay` | Trail material and fade controls. |
-| `updateEvery` | Minimum seconds between live samples. |
-| `minDistance` | Minimum world-space movement before appending a live sample. |
-| `paused` | Pauses live target sampling while preserving the current trail. |
-| `depthTest`, `renderOrder` | Depth testing and mesh render order. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the mesh. |
-| `onPointerOver`, `onPointerOut`, `onClick` | Pointer handlers forwarded to the mesh. |
+| Prop                                           | Purpose                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| `targetRef`                                    | Object whose world position is sampled over time.                   |
+| `points`                                       | Fixed trail points; disables live target sampling.                  |
+| `maxPoints`                                    | Maximum retained trail samples.                                     |
+| `width`, `color`, `colorStart`, `colorEnd`     | Trail width, solid color, and optional gradient colors.             |
+| `opacity`, `feather`, `glow`, `decay`          | Trail material and fade controls.                                   |
+| `updateEvery`                                  | Minimum seconds between live samples.                               |
+| `minDistance`                                  | Minimum world-space movement before appending a live sample.        |
+| `paused`                                       | Pauses live target sampling while preserving the current trail.     |
+| `depthTest`, `renderOrder`                     | Depth testing and mesh render order.                                |
+| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh.                 |
+| `position`, `rotation`, `scale`                | React Three Fiber-compatible transform props forwarded to the mesh. |
+| `onPointerOver`, `onPointerOut`, `onClick`     | Pointer handlers forwarded to the mesh.                             |
 
 ```tsx
-<MotionTrail targetRef={meshRef} color="#ff5c8a" width={0.1} maxPoints={96} decay={1.6} />
+<MotionTrail targetRef={meshRef} color="#ff5c8a" width={0.1} maxPoints={96} decay={1.6} />;
 ```
 
 ### FeatheredPlane
 
 Rectangular panel with UV-based soft edges. Useful for 3D HUD panels and simple vector-like cards.
 
-| Prop | Purpose |
-| --- | --- |
-| `width`, `height` | Plane dimensions. |
-| `color`, `opacity` | Panel fill. |
-| `feather` | UV edge softness. |
-| `radius` | Simple rounded-corner mask radius. |
-| `depthTest`, `depthWrite`, `renderOrder` | Depth and rendering order controls. |
-| `side` | Material side used by the panel mesh. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the mesh. |
-| `onPointerOver`, `onPointerOut`, `onClick` | Pointer handlers forwarded to the mesh. |
+| Prop                                           | Purpose                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| `width`, `height`                              | Plane dimensions.                                                   |
+| `color`, `opacity`                             | Panel fill.                                                         |
+| `feather`                                      | UV edge softness.                                                   |
+| `radius`                                       | Simple rounded-corner mask radius.                                  |
+| `depthTest`, `depthWrite`, `renderOrder`       | Depth and rendering order controls.                                 |
+| `side`                                         | Material side used by the panel mesh.                               |
+| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh.                 |
+| `position`, `rotation`, `scale`                | React Three Fiber-compatible transform props forwarded to the mesh. |
+| `onPointerOver`, `onPointerOut`, `onClick`     | Pointer handlers forwarded to the mesh.                             |
 
 ```tsx
-<FeatheredPlane width={4} height={1.6} color="#101826" opacity={0.7} feather={0.12} />
+<FeatheredPlane width={4} height={1.6} color="#101826" opacity={0.7} feather={0.12} />;
 ```
 
 ### TubePath3D
 
 Tube path renderer backed by the framework-independent `buildTubePathGeometry` helper.
 
-| Prop | Purpose |
-| --- | --- |
-| `points`, `closed`, `segments`, `curveType`, `epsilon` | Path sampling controls. |
-| `radius`, `radialSegments` | Tube shape controls. |
-| `color`, `opacity`, `depthTest` | Used by the default `MeshBasicMaterial`. |
-| `material` | Optional caller-owned material. It is not disposed by the component. |
-| `renderOrder` | Rendering order control. |
-| `frustumCulled`, `visible`, `name`, `userData` | Common three.js object props forwarded to the mesh. |
-| `position`, `rotation`, `scale` | React Three Fiber-compatible transform props forwarded to the mesh. |
-| `onPointerOver`, `onPointerOut`, `onClick` | Pointer handlers forwarded to the mesh. |
+| Prop                                                   | Purpose                                                              |
+| ------------------------------------------------------ | -------------------------------------------------------------------- |
+| `points`, `closed`, `segments`, `curveType`, `epsilon` | Path sampling controls.                                              |
+| `radius`, `radialSegments`                             | Tube shape controls.                                                 |
+| `color`, `opacity`, `depthTest`                        | Used by the default `MeshBasicMaterial`.                             |
+| `material`                                             | Optional caller-owned material. It is not disposed by the component. |
+| `renderOrder`                                          | Rendering order control.                                             |
+| `frustumCulled`, `visible`, `name`, `userData`         | Common three.js object props forwarded to the mesh.                  |
+| `position`, `rotation`, `scale`                        | React Three Fiber-compatible transform props forwarded to the mesh.  |
+| `onPointerOver`, `onPointerOut`, `onClick`             | Pointer handlers forwarded to the mesh.                              |
 
 ```tsx
-<TubePath3D points={points} radius={0.04} radialSegments={10} color="#8cff9a" />
+<TubePath3D points={points} radius={0.04} radialSegments={10} color="#8cff9a" />;
 ```
 
 ```tsx
@@ -276,7 +275,6 @@ const geometry = buildRibbonGeometry(points, {
 ```
 
 `buildRibbonGeometry` writes:
-
 - `position`
 - `normal`
 - `uv`
@@ -290,13 +288,13 @@ It handles short point arrays, duplicate points, closed paths, and very small se
 Invalid coordinates are filtered before sampling, numeric options are normalized, and non-empty
 geometries compute bounding boxes and bounding spheres.
 
-| Helper | Purpose |
-| --- | --- |
-| `sampleCurve(points, options)` | Samples Catmull-Rom or polyline paths and returns points, tangents, progress, distances, and total length. |
-| `compactPoints(points, closed, epsilon)` | Converts inputs to vectors, removes invalid values, and drops near-duplicates. |
-| `buildStableFrames(tangents, options)` | Builds ribbon frames from sampled tangents. |
-| `buildRibbonGeometry(points, options)` | Builds two-vertex-per-sample ribbon geometry with progress and distance attributes. |
-| `buildTubePathGeometry(points, options)` | Builds a three.js `TubeGeometry` from the same path options. |
+| Helper                                   | Purpose                                                                                                    |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `sampleCurve(points, options)`           | Samples Catmull-Rom or polyline paths and returns points, tangents, progress, distances, and total length. |
+| `compactPoints(points, closed, epsilon)` | Converts inputs to vectors, removes invalid values, and drops near-duplicates.                             |
+| `buildStableFrames(tangents, options)`   | Builds ribbon frames from sampled tangents.                                                                |
+| `buildRibbonGeometry(points, options)`   | Builds two-vertex-per-sample ribbon geometry with progress and distance attributes.                        |
+| `buildTubePathGeometry(points, options)` | Builds a three.js `TubeGeometry` from the same path options.                                               |
 
 ## Material API
 
@@ -318,12 +316,12 @@ Defaults are normalized: opacity is clamped to `0..1`, feather is clamped to `0.
 non-negative, invalid dash values fall back to safe progress-based defaults, and depth testing is
 enabled unless explicitly disabled.
 
-| Factory | Purpose |
-| --- | --- |
-| `createFeatheredRibbonMaterial(options)` | Soft-edged gradient/dashed ribbon `ShaderMaterial`. |
+| Factory                                     | Purpose                                                   |
+| ------------------------------------------- | --------------------------------------------------------- |
+| `createFeatheredRibbonMaterial(options)`    | Soft-edged gradient/dashed ribbon `ShaderMaterial`.       |
 | `updateMaterialUniforms(material, options)` | Updates an existing ribbon material without replacing it. |
-| `createGradientLineMaterial(options)` | Hard-edged gradient line material preset. |
-| `createNeonMaterial(options)` | Additive glow material preset. |
+| `createGradientLineMaterial(options)`       | Hard-edged gradient line material preset.                 |
+| `createNeonMaterial(options)`               | Additive glow material preset.                            |
 
 ## Demo
 
@@ -346,7 +344,6 @@ FPS, average frame time, p95 frame time, draw calls, triangle count, and scene b
 configurable number of ribbon paths and segments.
 
 Two material paths are available:
-
 - `GLSL WebGL`: the package's current `ShaderMaterial` implementation for WebGL testing.
 - `TSL WebGPU`: an experimental WebGPU-compatible node material imported from
   `@moritzbrantner/r3f-vector-effects/experimental/tsl`.

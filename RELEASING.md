@@ -1,7 +1,6 @@
 # Releasing
 
 Use this checklist for each npm release.
-
 1. Update `CHANGELOG.md` so the target version has a dated section.
 2. Update `package.json` with the new version.
 3. Install dependencies with `bun install --frozen-lockfile`.

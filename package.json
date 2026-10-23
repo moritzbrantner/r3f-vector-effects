@@ -90,21 +90,21 @@
     "three": ">=0.160.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "@react-three/drei": "^10.0.0",
-    "@react-three/fiber": "^9.0.0",
-    "@tailwindcss/vite": "^4.3.0",
+    "@biomejs/biome": "2.6.2",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
+    "@tailwindcss/vite": "4.3.3",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@types/three": "^0.186.0",
-    "@vitejs/plugin-react": "^6.0.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.3.0",
-    "three": "^0.186.0",
-    "tsup": "^9.0.0",
-    "typescript": "^5.7.3",
-    "vite": "^8.0.0",
-    "vitest": "^2.1.8"
+    "@types/three": "0.186.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.3",
+    "three": "0.186.1",
+    "tsup": "9.0.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vitest": "2.1.9"
   }
 }
