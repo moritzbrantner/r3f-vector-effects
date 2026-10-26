@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "React Three Fiber components for vector-like 3D paths, ribbons, trails, glows, dashes, and feathered panels.",
   "type": "module",
-  "packageManager": "bun@1.4.3",
+  "packageManager": "bun@1.4.4",
   "license": "MIT",
   "repository": {
     "type": "git",
