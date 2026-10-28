@@ -90,7 +90,7 @@
     "three": ">=0.160.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.2",
+    "@biomejs/biome": "2.6.3",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "@tailwindcss/vite": "4.3.3",
